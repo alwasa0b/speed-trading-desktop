@@ -4,22 +4,25 @@ import {
   UPDATE_SELL_ORDER_TYPE,
   UPDATE_BUY_ORDER_TYPE,
   UPDATE_BUY_PRICE,
-  UPDATE_SELL_PRICE
+  UPDATE_SELL_PRICE,
+  PLACE_BUY_REQUEST
 } from "../constants/buy";
-// import * as service from "./service";
+const { ipcRenderer } = require("electron");
 
 const buy_order_success = () => ({ type: PLACE_BUY_REQUEST_SUCCESS });
 export const place_buy_order = () => async (dispatch, getState) => {
   const { buy_order, messages } = getState();
   const { instrument, symbol } = messages.price;
-  // const buy_order_response = await service.place_buy_order({
-  //   buy_order: {
-  //     ...buy_order,
-  //     instrument,
-  //     symbol
-  //   }
-  // });
-  dispatch(buy_order_success(buy_order_response));
+
+  await ipcRenderer.send(PLACE_BUY_REQUEST, {
+    ...buy_order,
+    instrument,
+    symbol
+  });
+
+  ipcRenderer.once(PLACE_BUY_REQUEST_SUCCESS, async (event, data) => {
+    dispatch(buy_order_success(data));
+  });
 };
 
 export const update_quantity = ({ quantity }) => ({

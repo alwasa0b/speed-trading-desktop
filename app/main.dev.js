@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import MenuBuilder from "./menu";
+
 import {
   login,
   place_cancel_order,
@@ -10,6 +11,34 @@ import {
   update_positions,
   update_orders
 } from "./worker";
+
+import {
+  UPDATE_POSITIONS,
+  UPDATE_ORDERS,
+  UPDATE_PRICE,
+  PRICE_UPDATED,
+  POSITIONS_UPDATED,
+  ORDERS_UPDATED
+} from "./constants/messages";
+
+import { LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE } from "./constants/login";
+
+import { PLACE_BUY_REQUEST, PLACE_BUY_REQUEST_SUCCESS } from "./constants/buy";
+
+import {
+  PLACE_CANCEL_REQUEST,
+  PLACE_CANCEL_REQUEST_SUCCESS
+} from "./constants/cancel";
+
+import {
+  PLACE_SELL_REQUEST,
+  PLACE_SELL_REQUEST_SUCCESS
+} from "./constants/sell";
+
+import {
+  PLACE_STOP_REQUEST,
+  PLACE_STOP_REQUEST_SUCCESS
+} from "./constants/stop";
 
 let mainWindow = null;
 
@@ -85,55 +114,56 @@ app.on("ready", async () => {
   menuBuilder.buildMenu();
 });
 
-ipcMain.on("login", async function(event, { login: test }) {
+ipcMain.on(LOGIN_REQUEST, async function(event, { login: test }) {
+  console.log(test);
   await login(test);
-  event.sender.send("USERS_LOGIN_SUCCESS");
+  event.sender.send(LOGIN_SUCCESS);
 });
 
-ipcMain.on("cancel_orders", async (event, order) => {
+ipcMain.on(PLACE_CANCEL_REQUEST, async (event, order) => {
   const resl = await place_cancel_order(order);
-  event.sender.send("order_canceled", resl);
+  event.sender.send(PLACE_CANCEL_REQUEST_SUCCESS, resl);
 });
 
-ipcMain.on("place_buy_order", async (event, order) => {
+ipcMain.on(PLACE_BUY_REQUEST, async (event, order) => {
   const placedOrder = await place_buy_order(order);
-  event.sender.send("buy_order_placed", placedOrder);
+  event.sender.send(PLACE_BUY_REQUEST_SUCCESS, placedOrder);
 });
 
-ipcMain.on("place_sell_order", async (event, order) => {
+ipcMain.on(PLACE_SELL_REQUEST, async (event, order) => {
   const placedOrder = await place_sell_order(order);
-  event.sender.send("sell_order_placed", placedOrder);
+  event.sender.send(PLACE_SELL_REQUEST_SUCCESS, placedOrder);
 });
 
-ipcMain.on("place_stop_loss_order", async (event, order) => {
+ipcMain.on(PLACE_STOP_REQUEST, async (event, order) => {
   const placedOrder = await place_stop_loss_order(order);
-  event.sender.send("place_stop_loss_order", placedOrder);
+  event.sender.send(PLACE_STOP_REQUEST_SUCCESS, placedOrder);
 });
 
 let update_price_handle;
 let update_position_handle;
 let update_order_handle;
 
-ipcMain.on("UPDATE_PRICE", async (event, { symbol }) => {
+ipcMain.on(UPDATE_PRICE, async (event, { symbol }) => {
   if (update_price_handle != null) clearInterval(update_price_handle);
   update_price_handle = setInterval(
-    update_price(data => event.sender.send("PRICE_UPDATED", data), symbol),
+    update_price(data => event.sender.send(PRICE_UPDATED, data), symbol),
     600
   );
 });
 
-ipcMain.on("UPDATE_POSITIONS", event => {
+ipcMain.on(UPDATE_POSITIONS, event => {
   if (update_position_handle != null) clearInterval(update_position_handle);
   update_position_handle = setInterval(
-    update_positions(data => event.sender.send("POSITIONS_UPDATED", data)),
+    update_positions(data => event.sender.send(POSITIONS_UPDATED, data)),
     5000
   );
 });
 
-ipcMain.on("UPDATE_ORDERS", event => {
+ipcMain.on(UPDATE_ORDERS, event => {
   if (update_order_handle != null) clearInterval(update_order_handle);
   update_order_handle = setInterval(
-    update_orders(data => event.sender.send("ORDERS_UPDATED", data)),
+    update_orders(data => event.sender.send(ORDERS_UPDATED, data)),
     5000
   );
 });
