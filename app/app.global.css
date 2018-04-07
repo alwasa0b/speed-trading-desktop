@@ -5,6 +5,7 @@
 @import "~font-awesome/css/font-awesome.css";
 
 /* app parts */
+/* app parts */
 
 .st-app-header {
   background-color: #08734e;
@@ -133,7 +134,6 @@
 
 .st-orders-section-wrapper {
   width: 100%;
-  margin-top: 20px;
 }
 
 .st-section-title {
@@ -153,8 +153,8 @@
   width: 100%;
   background-color: #08734e;
 }
+
 .st-orders-header-row div {
-  flex: 1;
   height: 1.75em;
   margin-top: 5px;
   font-size: 1em;
@@ -177,15 +177,71 @@
 .orders-row {
   width: 100%;
   display: flex;
-  height: 2em;
+  height: 1.7em;
+  padding-bottom: 12px;
 }
 
 .orders-row div {
-  flex: 1;
   color: #262626;
   margin-top: 5px;
   padding-left: 10px;
   height: 100%;
+}
+
+.symbol-column-header {
+  width: 13%;
+}
+
+.qty-column-header {
+  width: 10%;
+}
+
+.price-column-header {
+  width: 15%;
+}
+
+.stop-price-column-header {
+  width: 15%;
+}
+
+.gain-column-header {
+  width: 10%;
+}
+
+.gain-dollar-column-header {
+  width: 10%;
+}
+
+.status-column-header {
+  width: 25%;
+}
+
+.qty-column {
+  width: 10%;
+}
+
+.symbol-column {
+  width: 13%;
+}
+
+.price-column {
+  width: 15%;
+}
+
+.stop-price-column {
+  width: 15%;
+}
+
+.gain-column {
+  width: 10%;
+}
+
+.gain-dollar-column {
+  width: 10%;
+}
+
+.status-column {
+  width: 25%;
 }
 
 .orders-row div:not(:first-child) {
@@ -194,8 +250,12 @@
 }
 
 /* orders table action button */
+.action-column-header {
+  padding-right: 20px;
+}
+
 .st-action-column {
-  padding-right: 10px;
+  padding-right: 20px;
 }
 
 .st-action-column button {
@@ -215,125 +275,6 @@
   border: 2px solid gray;
   background-color: white;
   width: 100%;
-}
-
-/* level 2 section */
-
-.st-level2-wrapper {
-  width: 100%;
-  display: flex;
-  margin-top: 20px;
-}
-
-/* bid section */
-
-.st-bid-wrapper {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  flex: 0.5;
-  margin-right: 10px;
-}
-
-.st-bid-header-row {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  background-color: #08734e;
-}
-
-.st-bid-header-row div {
-  flex: 1;
-  height: 1.75em;
-  margin-top: 5px;
-  font-size: 1.5em;
-  font-family: "Roboto-thin", sans-serif;
-  padding-left: 10px;
-  color: #ffffff;
-}
-
-.st-bid-header-row div:not(:first-child) {
-  border-left: 1px solid #ffffff;
-  height: 90%;
-}
-
-.st-bids {
-  width: 100%;
-  background-color: #ffffff;
-  overflow-y: auto;
-}
-
-.st-bid-row {
-  width: 100%;
-  display: flex;
-  height: 1.75em;
-}
-
-.st-bid-row div {
-  flex: 1;
-  color: #262626;
-  margin-top: 5px;
-  padding-left: 10px;
-}
-
-.st-bid-row div:not(:first-child) {
-  border-left: 1px solid #262626;
-  height: 90%;
-}
-
-/* ask section */
-
-.st-ask-wrapper {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  flex: 0.5;
-  margin-left: 10px;
-}
-.st-ask-header-row {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  background-color: #08734e;
-}
-
-.st-ask-header-row div {
-  flex: 1;
-  height: 1.75em;
-  margin-top: 5px;
-  font-size: 1.5em;
-  font-family: "Roboto-thin", sans-serif;
-  padding-left: 10px;
-  color: #ffffff;
-}
-
-.st-ask-header-row div:not(:first-child) {
-  border-left: 1px solid #ffffff;
-  height: 90%;
-}
-
-.st-asks {
-  width: 100%;
-  background-color: #ffffff;
-  overflow-y: auto;
-}
-
-.st-ask-row {
-  width: 100%;
-  display: flex;
-  height: 1.75em;
-}
-
-.st-ask-row div {
-  flex: 1;
-  color: #262626;
-  margin-top: 5px;
-  padding-left: 10px;
-}
-
-.st-ask-row div:not(:first-child) {
-  border-left: 1px solid #262626;
-  height: 90%;
 }
 
 /* ticker section */
@@ -371,16 +312,16 @@
   color: #ffffff;
   padding: 20px;
   background-color: #730863;
-  font-size: 2.5em;
+  font-size: 1.5em;
   font-family: "Roboto-thin", sans-serif;
   text-align: right;
-  width: 100%;
+  flex: 2;
 }
 
 .st-ticker-live {
   margin-top: 0.75em;
   padding: 20px;
-  flex: 0.5;
+  flex: 1;
 }
 
 .st-ticker-live input {
@@ -390,4 +331,20 @@
 
 .st-sell-action {
   display: flex;
+}
+
+.st-sell-action input {
+  height: 20px;
+  margin-left: 4px;
+}
+
+.st-sell-action label {
+  height: 25px;
+  margin-left: 4px;
+}
+
+.st-sell-action button {
+  margin-left: 4px;
+  height: 25px;
+  width: 120px;
 }
