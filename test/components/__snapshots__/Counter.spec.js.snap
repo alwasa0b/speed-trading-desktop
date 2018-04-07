@@ -4,6 +4,13 @@ exports[`Counter component should match exact snapshot 1`] = `
 <div>
   <div>
     <div
+      data-tid="backButton"
+    >
+      <input
+        type="text"
+      />
+    </div>
+    <div
       className="backButton"
       data-tid="backButton"
     >

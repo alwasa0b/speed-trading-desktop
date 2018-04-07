@@ -4,40 +4,390 @@
  */
 @import "~font-awesome/css/font-awesome.css";
 
-body {
-  position: relative;
+/* app parts */
+
+.st-app-header {
+  background-color: #08734e;
+  height: 45px;
   color: white;
+  display: flex;
+}
+
+.st-app-title {
+  font-size: 1em;
+  font-family: "Roboto-thin", sans-serif;
+  flex: 1;
+  margin-left: 10px;
+  margin-top: 5px;
+}
+
+.st-app-logo {
+  width: 70px;
+  height: 100%;
+  background-color: #0c5c3e;
+}
+
+.st-app-logo img {
+  height: 80%;
+  padding-top: 6px;
+  margin-left: 10px;
+}
+
+.st-app-main {
+  padding: 1em;
+  background-color: #262626;
+  color: darkgrey;
   height: 100vh;
-  background-color: #232c39;
-  background-image: linear-gradient(45deg, rgba(0, 216, 255, 0.5) 10%, rgba(0, 1, 127, 0.7));
-  font-family: Arial, Helvetica, Helvetica Neue, serif;
-  overflow-y: hidden;
 }
 
-h2 {
-  margin: 0;
-  font-size: 2.25rem;
-  font-weight: bold;
-  letter-spacing: -0.025em;
-  color: #fff;
+.st-level1-wrapper {
+  display: flex;
+  flex-direction: row;
 }
 
-p {
-  font-size: 24px;
+/* order action section */
+
+.order-action-wrapper {
 }
 
-li {
-  list-style: none;
+.row {
+  display: flex;
+  display: row;
+  align-content: stretch;
+  align-items: stretch;
+  margin-top: 0.5em;
+  border: 0.15px solid #cccccc;
+  padding: 20px;
 }
 
-a {
-  color: white;
-  opacity: 0.75;
-  text-decoration: none;
+.st-label-div {
+  margin-right: 15px;
+  flex: 0.05;
+  font-size: 1em;
+  font-family: "Roboto-thin", sans-serif;
+  text-align: right;
 }
 
-a:hover {
-  opacity: 1;
-  text-decoration: none;
+.st-text-div {
+  margin-left: 5px;
+  margin-right: 5px;
+  font-size: 1em;
+  font-family: "Roboto-thin", sans-serif;
+  text-align: right;
+}
+
+.st-input-div {
+  margin-right: 10px;
+}
+
+.st-input-div input {
+  margin-right: 10px;
+  width: 100%;
+  height: 1.25em;
+}
+
+.st-input-div input:disabled {
+  background-color: gray;
+}
+
+.st-btn-div {
+  height: 1.5em;
+  flex: 0.25;
+}
+
+.st-btn-div button {
+  height: 100%;
+  width: 100%;
+  font-size: 1em;
+  font-family: "Roboto-light", sans-serif;
+  border-radius: 3px;
+  margin-left: 10px;
+  margin-right: 15px;
   cursor: pointer;
+  min-width: 140px;
+  border: 2px solid #ff8c00;
+  background: transparent;
+  color: white;
+}
+
+.st-btn-div button:hover {
+  background-color: #ffae4c;
+  color: #262626;
+}
+
+.st-btn-div button:disabled {
+  height: 100%;
+  width: 100%;
+  font-size: 1em;
+  font-family: "Roboto-light", sans-serif;
+  border-radius: 3px;
+  margin-left: 10px;
+  margin-right: 15px;
+  cursor: default;
+  min-width: 140px;
+  border: 2px solid gray;
+  background: gray;
+}
+
+/* orders section */
+
+.st-orders-section-wrapper {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.st-section-title {
+  height: 1.75em;
+  margin-top: 5px;
+  font-size: 1em;
+  font-family: "Roboto-thin", sans-serif;
+  padding-left: 10px;
+  padding-top: 10px;
+  color: #ffffff;
+  border-top: 1px solid #ffffff;
+}
+
+.st-orders-header-row {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  background-color: #08734e;
+}
+.st-orders-header-row div {
+  flex: 1;
+  height: 1.75em;
+  margin-top: 5px;
+  font-size: 1em;
+  font-family: "Roboto-thin", sans-serif;
+  padding-left: 10px;
+  color: #ffffff;
+}
+
+.st-orders-header-row div:not(:first-child) {
+  border-left: 1px solid #ffffff;
+  height: 90%;
+}
+
+.st-orders {
+  width: 100%;
+  background-color: #ffffff;
+  overflow-y: auto;
+}
+
+.orders-row {
+  width: 100%;
+  display: flex;
+  height: 2em;
+}
+
+.orders-row div {
+  flex: 1;
+  color: #262626;
+  margin-top: 5px;
+  padding-left: 10px;
+  height: 100%;
+}
+
+.orders-row div:not(:first-child) {
+  border-left: 1px solid #262626;
+  height: 90%;
+}
+
+/* orders table action button */
+.st-action-column {
+  padding-right: 10px;
+}
+
+.st-action-column button {
+  border-radius: 3px;
+  cursor: pointer;
+  border: 2px solid #ff8c00;
+  width: 100%;
+}
+
+.st-action-column button:hover {
+  background-color: #ffae4c;
+}
+
+.st-action-column button:disabled {
+  border-radius: 3px;
+  cursor: default;
+  border: 2px solid gray;
+  background-color: white;
+  width: 100%;
+}
+
+/* level 2 section */
+
+.st-level2-wrapper {
+  width: 100%;
+  display: flex;
+  margin-top: 20px;
+}
+
+/* bid section */
+
+.st-bid-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  flex: 0.5;
+  margin-right: 10px;
+}
+
+.st-bid-header-row {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  background-color: #08734e;
+}
+
+.st-bid-header-row div {
+  flex: 1;
+  height: 1.75em;
+  margin-top: 5px;
+  font-size: 1.5em;
+  font-family: "Roboto-thin", sans-serif;
+  padding-left: 10px;
+  color: #ffffff;
+}
+
+.st-bid-header-row div:not(:first-child) {
+  border-left: 1px solid #ffffff;
+  height: 90%;
+}
+
+.st-bids {
+  width: 100%;
+  background-color: #ffffff;
+  overflow-y: auto;
+}
+
+.st-bid-row {
+  width: 100%;
+  display: flex;
+  height: 1.75em;
+}
+
+.st-bid-row div {
+  flex: 1;
+  color: #262626;
+  margin-top: 5px;
+  padding-left: 10px;
+}
+
+.st-bid-row div:not(:first-child) {
+  border-left: 1px solid #262626;
+  height: 90%;
+}
+
+/* ask section */
+
+.st-ask-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  flex: 0.5;
+  margin-left: 10px;
+}
+.st-ask-header-row {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  background-color: #08734e;
+}
+
+.st-ask-header-row div {
+  flex: 1;
+  height: 1.75em;
+  margin-top: 5px;
+  font-size: 1.5em;
+  font-family: "Roboto-thin", sans-serif;
+  padding-left: 10px;
+  color: #ffffff;
+}
+
+.st-ask-header-row div:not(:first-child) {
+  border-left: 1px solid #ffffff;
+  height: 90%;
+}
+
+.st-asks {
+  width: 100%;
+  background-color: #ffffff;
+  overflow-y: auto;
+}
+
+.st-ask-row {
+  width: 100%;
+  display: flex;
+  height: 1.75em;
+}
+
+.st-ask-row div {
+  flex: 1;
+  color: #262626;
+  margin-top: 5px;
+  padding-left: 10px;
+}
+
+.st-ask-row div:not(:first-child) {
+  border-left: 1px solid #262626;
+  height: 90%;
+}
+
+/* ticker section */
+
+.st-ticker-wrapper {
+  display: flex;
+  align-content: stretch;
+  align-items: stretch;
+
+  padding-left: 20px;
+  padding-right: 20px;
+  flex: 1;
+}
+
+.st-ticker-price {
+  display: flex;
+  align-content: stretch;
+  align-items: stretch;
+  flex: 1;
+  margin-right: 30px;
+}
+
+.st-ticker-price-label {
+  margin-right: 15px;
+  margin-top: 1.2em;
+  flex: 0.05;
+  font-size: 1.5em;
+  font-family: "Roboto-thin", sans-serif;
+  text-align: right;
+  min-width: 140px;
+}
+
+.st-ticker-price-value {
+  border: 0.15px solid #cccccc;
+  color: #ffffff;
+  padding: 20px;
+  background-color: #730863;
+  font-size: 2.5em;
+  font-family: "Roboto-thin", sans-serif;
+  text-align: right;
+  width: 100%;
+}
+
+.st-ticker-live {
+  margin-top: 0.75em;
+  padding: 20px;
+  flex: 0.5;
+}
+
+.st-ticker-live input {
+  width: 100%;
+  height: 1.25em;
+}
+
+.st-sell-action {
+  display: flex;
 }

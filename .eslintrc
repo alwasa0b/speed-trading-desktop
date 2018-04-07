@@ -4,7 +4,6 @@
     "sourceType": "module",
     "allowImportExportEverywhere": true
   },
-  "extends": "airbnb",
   "env": {
     "browser": true,
     "node": true
@@ -33,7 +32,6 @@
     "react/prefer-stateless-function": "off"
   },
   "plugins": [
-    "flowtype",
     "import",
     "promise",
     "compat",

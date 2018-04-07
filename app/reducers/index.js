@@ -1,11 +1,14 @@
-// @flow
-import { combineReducers } from 'redux';
-import { routerReducer as router } from 'react-router-redux';
-import counter from './counter';
+import { combineReducers } from "redux";
+import authentication from "./authentication";
+import messages from "./messages";
+import buy_order from "./buy_order";
+import sell_order from "./sell_order";
+import login from "./login";
 
-const rootReducer = combineReducers({
-  counter,
-  router,
+export default combineReducers({
+  authentication,
+  messages,
+  buy_order,
+  sell_order,
+  login
 });
-
-export default rootReducer;

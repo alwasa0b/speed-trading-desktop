@@ -1,18 +1,9 @@
-// @flow
-import * as React from 'react';
+import App from "../components/App";
+import { connect } from "react-redux";
 
-type Props = {
-  children: React.Node
-};
-
-export default class App extends React.Component<Props> {
-  props: Props;
-
-  render() {
-    return (
-      <div>
-        {this.props.children}
-      </div>
-    );
-  }
-}
+export default connect(
+  ({ authentication }) => ({
+    loggedIn: authentication.loggedIn
+  }),
+  null
+)(App);
