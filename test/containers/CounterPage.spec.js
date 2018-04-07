@@ -8,8 +8,8 @@ import { configureStore } from '../../app/store/configureStore';
 
 Enzyme.configure({ adapter: new Adapter() });
 
-function setup(initialState) {
-  const store = configureStore(initialState);
+function setup(initialStat) {
+  const store = configureStore(initialStae);
   const history = createBrowserHistory();
   const provider = (
     <Provider store={store}>
