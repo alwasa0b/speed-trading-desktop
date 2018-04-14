@@ -115,7 +115,6 @@ app.on("ready", async () => {
 });
 
 ipcMain.on(LOGIN_REQUEST, async function(event, { login: test }) {
-  console.log(test);
   await login(test);
   event.sender.send(LOGIN_SUCCESS);
 });
