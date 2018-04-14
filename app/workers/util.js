@@ -1,9 +1,12 @@
 const retryPromise = fn => {
+  let count = 10;
   const attempt = async (...callArgs) => {
     try {
       return await fn(...callArgs);
     } catch (e) {
       console.log("reattempting ", callArgs);
+      if (count === 10) return { error: true };
+      count -= 1;
       return await fn(...callArgs);
     }
   };
@@ -23,19 +26,21 @@ module.exports = ({ username, password }) => {
         Object.keys(Robinhood).forEach(key => {
           // console.log('key', key);
           const origFn = Robinhood[key];
-          Robinhood[key] = retryPromise((...callArgs) => {
-            return new Promise((resolve, reject) => {
-              origFn.apply(null, [
-                ...callArgs,
-                (error, response, body) => {
-                  return error || !body ? reject(error) : resolve(body);
-                }
-              ]);
-            });
-          });
+          Robinhood[key] = promisfy(origFn);
         });
         resolve(Robinhood);
       }
     );
+  });
+};
+
+const promisfy = origFn => (...callArgs) => {
+  return new Promise((resolve, reject) => {
+    origFn.apply(null, [
+      ...callArgs,
+      (error, response, body) => {
+        return error || !body ? reject(error) : resolve(body);
+      }
+    ]);
   });
 };

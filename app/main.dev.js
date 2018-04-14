@@ -10,7 +10,7 @@ import {
   update_price,
   update_positions,
   update_orders
-} from "./worker";
+} from "./workers";
 
 import {
   UPDATE_POSITIONS,

@@ -10,8 +10,10 @@ module.exports = async (
     sell_price
   }
 ) => {
+  let excutedOrder;
+  
   try {
-    let quote, excutedOrder;
+    let quote;
     const bid_type = buy_order_type === "bid";
     if (bid_type) quote = await Robinhood.quote_data(symbol);
 
@@ -42,7 +44,7 @@ module.exports = async (
 
           if (sell_order_type === "limit") {
             console.log("placing sell order...");
-            console.log(`id: ${orderPlacedRes.id}, sell: ${sellPrice}`);
+            console.log(`id: ${orderPlacedRes.id}, sell: ${sell_price}`);
             await Robinhood.place_sell_order({
               ...options,
               bid_price: sell_price
@@ -51,7 +53,7 @@ module.exports = async (
 
           if (sell_order_type === "stop") {
             console.log("placing stop loss...");
-            console.log(`id: ${orderPlacedRes.id}, stop: ${stopLossPrice}`);
+            console.log(`id: ${orderPlacedRes.id}, stop: ${sell_price}`);
             await Robinhood.place_sell_order({
               instrument: { url: instrument, symbol },
               quantity,

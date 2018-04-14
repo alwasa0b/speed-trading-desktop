@@ -2,7 +2,6 @@ const init = require("./util");
 const placeBuyOrder = require("./place-buy-order");
 const placeSellOrder = require("./place-sell-order");
 const placeStopLossOrder = require("./place-stop-loss-order");
-const chunk = require("./chunk");
 const mapLimit = require("promise-map-limit");
 
 let Robinhood;
@@ -55,7 +54,11 @@ export const update_positions = callback => async () => {
 export const update_orders = callback => async () => {
   let options = { updated_at: getDate() };
   let orders = await Robinhood.orders(options);
-  let tickers = await chunk(orders.results, Robinhood.url);
+  let tickers = await mapLimit(orders.results, 1, async order => {
+    let ticker = await Robinhood.url(order.instrument);
+    return { symbol: ticker.symbol, ...order };
+  });
+
   callback(tickers);
 };
 
@@ -71,6 +74,5 @@ function getDate() {
   if (mm < 10) {
     mm = "0" + mm;
   }
-  var today = yyyy + "-" + mm + "-" + dd;
-  return today;
+  return yyyy + "-" + mm + "-" + dd;
 }
