@@ -7,48 +7,32 @@ import Paper from "material-ui/Paper";
 import OrderAction from "../containers/OrderAction";
 import Positions from "../containers/Positions";
 import Orders from "../containers/Orders";
+import Ticker from "../containers/Ticker";
+import AutoSellOrder from "../containers/AutoSellOrder.js";
 
 const styles = theme => ({
-  root: {
-    display: "grid",
-    "grid-template-columns": "repeat(3, 1fr)",
-    "grid-gap": "10px",
-    "grid-auto-rows": "100px",
-    "grid-template-areas": `"a a a a b b b b"
-    "a a a a b b b b"
-    "c c c c d d d d"
-    "c c c c d d d d"`
-  },
   paper: {
-    "grid-area": "c",
     "justify-self": "center"
-  },
-  textField: {
-    margin: theme.spacing.unit,
-    width: "300px"
-  },
-  button: {
-    margin: theme.spacing.unit,
-    width: "50%",
-    "justify-content": "center"
   }
 });
-
 export default withStyles(styles)(
-  ({
-    username,
-    password,
-    update_username,
-    update_password,
-    login,
-    classes
-  }) => (
-    <div>
-      <Paper className={classes.paper} elevation={4}>
-      <OrderAction/>
-      <Positions/>
-      <Orders/>
-      </Paper>
-    </div>
-  )
+  class Home extends React.PureComponent {
+    componentDidMount() {
+      this.props.update_positions();
+      this.props.update_orders();
+    }
+    render() {
+      return (
+        <div>
+          <Paper className={this.props.classes.paper} elevation={4}>
+            <Ticker />
+            <OrderAction />
+            <AutoSellOrder />
+            <Positions />
+            <Orders />
+          </Paper>
+        </div>
+      );
+    }
+  }
 );

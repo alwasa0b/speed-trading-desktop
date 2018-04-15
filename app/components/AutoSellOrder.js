@@ -11,46 +11,51 @@ const styles = theme => ({
   root: {
     display: "flex",
     flexWrap: "wrap",
+    "align-items": "center",
+    "justify-content": "center",
+    margin: 2,
+    border: "1px solid gray"
   },
   formControl: {
     margin: theme.spacing.unit,
-    minWidth: 120
+    minWidth: 80
   },
-  textField: {
-    width: 200
+  input: {
+    width: 70
+  },
+  label: {
+    fontSize: 9
   }
 });
 
 export default withStyles(styles)(
   ({ classes, type, price, update_sell_order_type, update_sell_price }) => (
-    <form className={classes.root} autoComplete="off">
-      <Typography>Place Sell Order: </Typography>
-      {/* <label></label> */}
-      <FormControl className={classes.formControl}>
-        <InputLabel htmlFor="age-simple">Age</InputLabel>
-        <Select
+    <div className={classes.root} autoComplete="off">
+      <label className={classes.label}>Auto place Sell Order </label>
+      <div className={classes.formControl}>
+        <select
           value={type}
           onChange={({ target }) =>
             update_sell_order_type({ sell_order_type: target.value })
           }
         >
-          <MenuItem value={"none"}>None</MenuItem>
-          <MenuItem value={"limit"}>Limit</MenuItem>
-          <MenuItem value={"stop"}>Stop</MenuItem>
-        </Select>
-      </FormControl>
-      <FormControl className={classes.formControl}>
-        <InputLabel htmlFor="value-simple">Sell Price</InputLabel>
-        <Input
+          <option value={"none"}>None</option>
+          <option value={"limit"}>Limit</option>
+          <option value={"stop"}>Stop</option>
+        </select>
+      </div>
+      <div className={classes.formControl}>
+        <label className={classes.label}>Sell Price: </label>
+        <input
           type={"number"}
-          className={classes.textField}
+          min={0}
+          className={classes.input}
           disabled={type === "none"}
           onChange={({ target }) =>
             update_sell_price({ sell_price: target.value })
           }
-          startAdornment={<InputAdornment position="start">$</InputAdornment>}
         />
-      </FormControl>
-    </form>
+      </div>
+    </div>
   )
 );

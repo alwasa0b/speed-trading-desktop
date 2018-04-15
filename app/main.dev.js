@@ -3,6 +3,7 @@ import MenuBuilder from "./menu";
 
 import {
   login,
+  logout,
   place_cancel_order,
   place_stop_loss_order,
   place_buy_order,
@@ -71,12 +72,21 @@ const installExtensions = async () => {
  * Add event listeners...
  */
 
+let update_price_handle;
+let update_position_handle;
+let update_order_handle;
+
 app.on("window-all-closed", () => {
   // Respect the OSX convention of having the application in memory even
   // after all windows have been closed
   if (process.platform !== "darwin") {
     app.quit();
   }
+
+  if (update_price_handle) clearInterval(update_price_handle);
+  if (update_position_handle) clearInterval(update_position_handle);
+  if (update_order_handle) clearInterval(update_order_handle);
+  logout();
 });
 
 app.on("ready", async () => {
@@ -89,8 +99,8 @@ app.on("ready", async () => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    width: 550,
-    height: 860,
+    width: 500,
+    height: 660,
     resizable: false
   });
 
@@ -107,6 +117,10 @@ app.on("ready", async () => {
   });
 
   mainWindow.on("closed", () => {
+    if (update_price_handle) clearInterval(update_price_handle);
+    if (update_position_handle) clearInterval(update_position_handle);
+    if (update_order_handle) clearInterval(update_order_handle);
+    logout();
     mainWindow = null;
   });
 
@@ -138,10 +152,6 @@ ipcMain.on(PLACE_STOP_REQUEST, async (event, order) => {
   const placedOrder = await place_stop_loss_order(order);
   event.sender.send(PLACE_STOP_REQUEST_SUCCESS, placedOrder);
 });
-
-let update_price_handle;
-let update_position_handle;
-let update_order_handle;
 
 ipcMain.on(UPDATE_PRICE, async (event, { symbol }) => {
   if (update_price_handle != null) clearInterval(update_price_handle);

@@ -1,34 +1,56 @@
 import React from "react";
-import Ticker from "../containers/Ticker";
-import AutoSellOrder from "../containers/AutoSellOrder.js";
+import Button from "material-ui/Button";
 
-export default ({
-  price = {},
-  buy_order_type,
-  place_buy_order,
-  quantity,
-  buy_price,
-  update_quantity,
-  update_buy_order_type,
-  update_buy_price
-}) => (
-  <div className={"order-action-wrapper"}>
-    <div className={"row"}>
-      <Ticker />
-    </div>
-    <div className={"row"}>
-      <div className={"st-label-div"}>Quantity:</div>
-      <div className={"st-input-div"}>
+import Input, { InputLabel, InputAdornment } from "material-ui/Input";
+import { MenuItem } from "material-ui/Menu";
+import { FormControl, FormHelperText } from "material-ui/Form";
+import Select from "material-ui/Select";
+import { withStyles } from "material-ui/styles";
+const styles = theme => ({
+  root: {
+    display: "flex",
+    flexWrap: "wrap",
+    "align-items": "center",
+    "justify-content": "center",
+    margin: 2,
+    border: "1px solid gray"
+  },
+  formControl: {
+    margin: theme.spacing.unit,
+    maxWidth: 120,
+    maxHeight: 20
+  },
+  input: {
+    width: 70
+  },
+  label: {
+    fontSize: 9
+  }
+});
+
+export default withStyles(styles)(
+  ({
+    classes,
+    price = {},
+    buy_order_type,
+    place_buy_order,
+    quantity,
+    buy_price,
+    update_quantity,
+    update_buy_order_type,
+    update_buy_price
+  }) => (
+    <div className={classes.root}>
+      <div className={classes.formControl}>
+        <label className={classes.label}>Quantity: </label>
         <input
-          type="text"
-          id="qty"
-          className={"input-qty"}
+          type="number"
+          className={classes.input}
+          min={0}
           onChange={({ target }) => update_quantity({ quantity: target.value })}
         />
       </div>
-      <div className={"st-text-div"}>@</div>
-      <div className={"st-label-div"}>Price:</div>
-      <div className={"st-input-div"}>
+      <div className={classes.formControl}>
         <select
           value={buy_order_type}
           onChange={({ target }) =>
@@ -37,16 +59,17 @@ export default ({
             })
           }
         >
-          <option value="bid">Bid</option>
-          <option value="limit">Limit</option>
+          <option value={"bid"}>Bid</option>
+          <option value={"limit"}>Limit</option>
         </select>
       </div>
-      <div className={"st-input-div"}>
+      <div className={classes.formControl}>
+        <label className={classes.label}>Price: </label>
         <input
-          type="text"
-          id="price"
+          type="number"
+          className={classes.input}
+          min={0}
           disabled={buy_order_type !== "limit"}
-          className={"input-price"}
           onChange={({ target }) =>
             update_buy_price({
               buy_price: target.value
@@ -54,9 +77,8 @@ export default ({
           }
         />
       </div>
-      <div className={"st-btn-div"}>
+      <div className={classes.formControl}>
         <button
-          className={"btn-buy"}
           disabled={
             quantity < 1 ||
             (buy_order_type === "limit" && !buy_price) ||
@@ -68,8 +90,5 @@ export default ({
         </button>
       </div>
     </div>
-    <div className={"row"}>
-      <AutoSellOrder />
-    </div>
-  </div>
+  )
 );

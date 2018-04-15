@@ -11,6 +11,13 @@ export const login = async credentials => {
   return { loggedin: true };
 };
 
+export const logout = async credentials => {
+  if (Robinhood == null) return;
+  Robinhood = await Robinhood.expire_token();
+  Robinhood = null;
+  return { loggedout: true };
+};
+
 export const place_cancel_order = async order => {
   const placedOrder = await Robinhood.cancel_order(order);
   return placedOrder;
