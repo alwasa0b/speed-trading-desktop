@@ -1,11 +1,5 @@
 import React from "react";
 import NumberParser from "./NumberParser";
-import Table, {
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow
-} from "material-ui/Table";
 import { withStyles } from "material-ui/styles";
 
 const styles = theme => ({
@@ -22,6 +16,9 @@ const styles = theme => ({
   },
   row: {
     display: "table-row"
+  },
+  button: {
+    "font-size": "11px"
   }
 });
 
@@ -53,6 +50,7 @@ export default withStyles(styles)(
               <div className="divTableCell">{n.state}</div>
               <div className="divTableCell">
                 <button
+                  className={classes.button}
                   onClick={() => place_cancel_order({ cancel_order: n })}
                   disabled={n.state === "cancelled" || n.state === "filled"}
                 >

@@ -1,10 +1,6 @@
 import React from "react";
-import Input, { InputLabel, InputAdornment } from "material-ui/Input";
-import { MenuItem } from "material-ui/Menu";
-import { FormControl, FormHelperText } from "material-ui/Form";
-import Select from "material-ui/Select";
+import { FormControl } from "material-ui/Form";
 import { withStyles } from "material-ui/styles";
-import TextField from "material-ui/TextField";
 import Typography from "material-ui/Typography";
 
 const styles = theme => ({
@@ -23,6 +19,9 @@ const styles = theme => ({
   },
   price: {
     fontSize: "16px"
+  },
+  input: {
+    width: "70px"
   }
 });
 
@@ -34,6 +33,7 @@ export default withStyles(styles)(({ classes, price = {}, update_price }) => {
       </FormControl>
       <div className={classes.formControl}>
         <input
+          className={classes.input}
           onKeyDown={e =>
             e.key === "Enter" ? update_price({ symbol: e.target.value }) : null
           }

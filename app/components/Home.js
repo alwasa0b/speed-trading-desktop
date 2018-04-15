@@ -1,8 +1,5 @@
 import React from "react";
-import TextField from "material-ui/TextField";
-import { FormControl, FormHelperText } from "material-ui/Form";
 import { withStyles } from "material-ui/styles";
-import Button from "material-ui/Button";
 import Paper from "material-ui/Paper";
 import OrderAction from "../containers/OrderAction";
 import Positions from "../containers/Positions";
@@ -12,7 +9,11 @@ import AutoSellOrder from "../containers/AutoSellOrder.js";
 
 const styles = theme => ({
   paper: {
-    "justify-self": "center"
+    "justify-self": "center",
+    "font-size": "11px"
+  },
+  container: {
+    margin: "1.5px"
   }
 });
 export default withStyles(styles)(
@@ -25,11 +26,21 @@ export default withStyles(styles)(
       return (
         <div>
           <Paper className={this.props.classes.paper} elevation={4}>
-            <Ticker />
-            <OrderAction />
-            <AutoSellOrder />
-            <Positions />
-            <Orders />
+            <div className={this.props.classes.container}>
+              <Ticker />
+            </div>
+            <div className={this.props.classes.container}>
+              <OrderAction />
+            </div>
+            <div className={this.props.classes.container}>
+              <AutoSellOrder />
+            </div>
+            <div className={this.props.classes.container}>
+              <Positions />
+            </div>
+            <div className={this.props.classes.container}>
+              <Orders />
+            </div>
           </Paper>
         </div>
       );

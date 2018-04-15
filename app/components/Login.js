@@ -1,6 +1,6 @@
 import React from "react";
 import TextField from "material-ui/TextField";
-import { FormControl, FormHelperText } from "material-ui/Form";
+import { FormControl } from "material-ui/Form";
 import { withStyles } from "material-ui/styles";
 import Button from "material-ui/Button";
 import Paper from "material-ui/Paper";

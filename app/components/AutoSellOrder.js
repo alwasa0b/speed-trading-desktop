@@ -1,11 +1,5 @@
 import React from "react";
-import Input, { InputLabel, InputAdornment } from "material-ui/Input";
-import { MenuItem } from "material-ui/Menu";
-import { FormControl, FormHelperText } from "material-ui/Form";
-import Select from "material-ui/Select";
 import { withStyles } from "material-ui/styles";
-import TextField from "material-ui/TextField";
-import Typography from "material-ui/Typography";
 
 const styles = theme => ({
   root: {

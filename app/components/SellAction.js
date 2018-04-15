@@ -11,6 +11,9 @@ const styles = theme => ({
   },
   input: {
     width: 50
+  },
+  button: {
+    "font-size": "9px"
   }
 });
 
@@ -51,6 +54,7 @@ export default withStyles(styles)(
       </div>
       <div className={classes.formControl}>
         <button
+          className={classes.button}
           disabled={order_type !== "bid" && price === 0}
           onClick={() =>
             order_type === "stop"
