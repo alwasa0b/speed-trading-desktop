@@ -19,6 +19,11 @@ const styles = theme => ({
   },
   button: {
     "font-size": "11px"
+  },
+  cell: {
+    display: "table-cell",
+    padding: "3px 10px",
+    "font-size": "11px"
   }
 });
 
@@ -27,28 +32,28 @@ export default withStyles(styles)(
     <div className={classes.table}>
       <div className={classes.table}>
         <div className={classes.headerRow}>
-          <div className="divTableCell">Symbol</div>
-          <div className="divTableCell">Qty</div>
-          <div className="divTableCell">Price</div>
-          <div className="divTableCell">Stop Price</div>
-          <div className="divTableCell">Status</div>
-          <div className="divTableCell">Action</div>
+          <div className={classes.cell}>Symbol</div>
+          <div className={classes.cell}>Qty</div>
+          <div className={classes.cell}>Price</div>
+          <div className={classes.cell}>Stop Price</div>
+          <div className={classes.cell}>Status</div>
+          <div className={classes.cell}>Action</div>
         </div>
         {orders.map((n, i) => {
           return (
             <div className={classes.row} key={i}>
-              <div className="divTableCell">{n.symbol}</div>
-              <div className="divTableCell">
+              <div className={classes.cell}>{n.symbol}</div>
+              <div className={classes.cell}>
                 <NumberParser value={n.quantity} fix={0} />
               </div>
-              <div className="divTableCell">
+              <div className={classes.cell}>
                 <NumberParser value={n.average_price} />
               </div>
-              <div className="divTableCell">
+              <div className={classes.cell}>
                 <NumberParser value={n.stop_price} />
               </div>
-              <div className="divTableCell">{n.state}</div>
-              <div className="divTableCell">
+              <div className={classes.cell}>{n.state}</div>
+              <div className={classes.cell}>
                 <button
                   className={classes.button}
                   onClick={() => place_cancel_order({ cancel_order: n })}

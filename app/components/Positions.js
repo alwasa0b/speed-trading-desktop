@@ -16,6 +16,11 @@ const styles = theme => ({
   },
   row: {
     display: "table-row"
+  },
+  cell: {
+    display: "table-cell",
+    padding: "3px 10px",
+    "font-size": "11px"
   }
 });
 
@@ -28,26 +33,26 @@ export default withStyles(styles)(({ classes, positions = [] }) => {
     <div className={classes.table}>
       <div className={classes.table}>
         <div className={classes.headerRow}>
-          <div className="divTableCell">Symbol</div>
-          <div className="divTableCell">Qty</div>
-          <div className="divTableCell">Average Price</div>
-          <div className="divTableCell">Gain %</div>
-          <div className="divTableCell">Gain $</div>
-          <div className="divTableCell">Action</div>
+          <div className={classes.cell}>Symbol</div>
+          <div className={classes.cell}>Qty</div>
+          <div className={classes.cell}>Average Price</div>
+          <div className={classes.cell}>Gain %</div>
+          <div className={classes.cell}>Gain $</div>
+          <div className={classes.cell}>Action</div>
         </div>
         {positions.map((position, i) => (
           <div className={classes.row} key={i}>
-            <div className={"divTableCell"}>{position.symbol}</div>
-            <div className={"divTableCell"}>
+            <div className={classes.cell}>{position.symbol}</div>
+            <div className={classes.cell}>
               <NumberParser value={position.quantity} fix={0} />
             </div>
-            <div className={"divTableCell"}>
+            <div className={classes.cell}>
               <NumberParser value={position.average_buy_price} />
             </div>
-            <div className={"divTableCell"}>
+            <div className={classes.cell}>
               <NumberParser value={gain(position) * 100} />
             </div>
-            <div className={"divTableCell"}>
+            <div className={classes.cell}>
               <NumberParser
                 value={
                   gain(position) *
@@ -56,7 +61,7 @@ export default withStyles(styles)(({ classes, positions = [] }) => {
                 }
               />
             </div>
-            <div className={"divTableCell"}>
+            <div className={classes.cell}>
               <SellAction position={position} />
             </div>
           </div>
