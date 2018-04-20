@@ -11,7 +11,7 @@ module.exports = async (
   }
 ) => {
   let excutedOrder;
-  
+
   try {
     let quote;
     const bid_type = buy_order_type === "bid";
@@ -20,7 +20,9 @@ module.exports = async (
     let options = {
       type: "limit",
       quantity,
-      bid_price: bid_type ? quote.results[0].last_trade_price : buy_price,
+      bid_price: parseFloat(
+        bid_type ? quote.results[0].last_trade_price : buy_price
+      ).toFixed(2),
       instrument: { url: instrument, symbol }
     };
 
@@ -41,6 +43,8 @@ module.exports = async (
 
         if (order.state === "filled") {
           console.log("order filled..");
+
+          sell_price = parseFloat(sell_price).toFixed(2);
 
           if (sell_order_type === "limit") {
             console.log("placing sell order...");

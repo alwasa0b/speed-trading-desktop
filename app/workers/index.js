@@ -51,8 +51,12 @@ export const update_positions = callback => async () => {
   const resl = await Robinhood.nonzero_positions();
   let arr = await mapLimit(resl.results, 1, async order => {
     let ticker = await Robinhood.url(order.instrument);
-
-    return { symbol: ticker.symbol, ...order };
+    let price = await Robinhood.quote_data(ticker.symbol);
+    return {
+      symbol: ticker.symbol,
+      cur_price: price.results[0].last_trade_price,
+      ...order
+    };
   });
 
   callback(arr);

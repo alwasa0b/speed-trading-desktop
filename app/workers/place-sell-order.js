@@ -9,9 +9,10 @@ module.exports = async (
     let options = {
       type: "limit",
       quantity,
-      bid_price:
-        order_type === "bid" ? quote.results[0].last_trade_price : price,
-      instrument
+      bid_price: parseFloat(
+        order_type === "bid" ? quote.results[0].last_trade_price : price
+      ).toFixed(2),
+      instrument: { url: instrument, symbol }
     };
 
     const orderPlacedRes = await Robinhood.place_sell_order(options);

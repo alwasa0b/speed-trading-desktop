@@ -3,11 +3,11 @@ module.exports = async (Robinhood, { instrument, quantity, price, symbol }) => {
     const options = {
       instrument: { url: instrument, symbol },
       quantity,
-      stop_price: price,
+      stop_price: parseFloat(price).toFixed(2),
       type: "market",
       trigger: "stop"
     };
-    
+
     const orderPlacedRes = await Robinhood.place_sell_order(options);
 
     return orderPlacedRes;
