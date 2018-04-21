@@ -20,9 +20,9 @@ const styles = theme => ({
 export default withStyles(styles)(
   ({
     classes,
-    price,
+    order_type = "bid",
+    price = 0,
     position,
-    order_type,
     place_stop_loss_order,
     place_sell_order,
     update_sell_order_type,
@@ -33,7 +33,10 @@ export default withStyles(styles)(
         <select
           value={order_type}
           onChange={({ target }) =>
-            update_sell_order_type({ order_type: target.value })
+            update_sell_order_type({
+              order_type: target.value,
+              symbol: position.symbol
+            })
           }
         >
           <option value="bid">Bid</option>
@@ -48,7 +51,10 @@ export default withStyles(styles)(
           value={price}
           disabled={order_type === "bid"}
           onChange={({ target }) =>
-            update_sell_order_price({ price: target.value })
+            update_sell_order_price({
+              price: target.value,
+              symbol: position.symbol
+            })
           }
         />
       </div>
@@ -58,8 +64,16 @@ export default withStyles(styles)(
           disabled={order_type !== "bid" && price === 0}
           onClick={() =>
             order_type === "stop"
-              ? place_stop_loss_order({ stop_order: position })
-              : place_sell_order({ sell_order: position })
+              ? place_stop_loss_order({
+                  stop_order: position,
+                  price,
+                  order_type
+                })
+              : place_sell_order({
+                  sell_order: position,
+                  price,
+                  order_type
+                })
           }
         >
           Sell All
