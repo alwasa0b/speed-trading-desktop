@@ -14,6 +14,15 @@ const styles = theme => ({
   },
   button: {
     "font-size": "9px"
+  },
+  quantityControl: {
+    margin: theme.spacing.unit,
+    maxWidth: 220,
+    maxHeight: 20
+  },
+  quantityInput: {
+    marginLeft: 2,
+    width: 70
   }
 });
 
@@ -23,12 +32,47 @@ export default withStyles(styles)(
     order_type = "bid",
     price = 0,
     position,
+    quantity_type,
+    quantity,
     place_stop_loss_order,
     place_sell_order,
     update_sell_order_type,
-    update_sell_order_price
+    update_sell_order_price,
+    update_quantity_type = "count",
+    update_quantity
   }) => (
     <div className={classes.root}>
+      <div className={classes.quantityControl}>
+        <label className={classes.label}>Quantity: </label>
+        <select
+          value={quantity_type}
+          onChange={({ target }) =>
+            update_quantity_type({
+              quantity_type: target.value,
+              symbol: position.symbol
+            })
+          }
+        >
+          <option value={"count"}>#</option>
+          <option value={"percentage"}>%</option>
+        </select>
+        <input
+          type="number"
+          className={classes.quantityInput}
+          value={quantity}
+          min={0}
+          max={quantity_type === "percentage" ? 100 : Infinity}
+          onChange={({ target }) =>
+            update_quantity({
+              quantity:
+                quantity_type === "percentage" && Number(target.value) > 100
+                  ? 100
+                  : Number(target.value),
+              symbol: position.symbol
+            })
+          }
+        />
+      </div>
       <div className={classes.formControl}>
         <select
           value={order_type}
@@ -72,7 +116,9 @@ export default withStyles(styles)(
               : place_sell_order({
                   sell_order: position,
                   price,
-                  order_type
+                  order_type,
+                  quantity,
+                  quantity_type
                 })
           }
         >

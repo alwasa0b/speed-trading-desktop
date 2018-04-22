@@ -14,7 +14,16 @@ const styles = theme => ({
     maxWidth: 120,
     maxHeight: 20
   },
+  quantityControl: {
+    margin: theme.spacing.unit,
+    maxWidth: 220,
+    maxHeight: 20
+  },
   input: {
+    width: 70
+  },
+  quantityInput: {
+    marginLeft: 2,
     width: 70
   },
   label: {
@@ -30,18 +39,40 @@ export default withStyles(styles)(
     place_buy_order,
     quantity,
     buy_price,
+    quantity_type,
     update_quantity,
     update_buy_order_type,
-    update_buy_price
+    update_buy_price,
+    update_quantity_type
   }) => (
     <div className={classes.root}>
-      <div className={classes.formControl}>
+      <div className={classes.quantityControl}>
         <label className={classes.label}>Quantity: </label>
+        <select
+          value={quantity_type}
+          onChange={({ target }) =>
+            update_quantity_type({
+              quantity_type: target.value
+            })
+          }
+        >
+          <option value={"count"}>#</option>
+          <option value={"percentage"}>%</option>
+        </select>
         <input
           type="number"
-          className={classes.input}
+          className={classes.quantityInput}
+          value={quantity}
           min={0}
-          onChange={({ target }) => update_quantity({ quantity: target.value })}
+          max={quantity_type === "percentage" ? 100 : Infinity}
+          onChange={({ target }) =>
+            update_quantity({
+              quantity:
+                quantity_type === "percentage" && Number(target.value) > 100
+                  ? 100
+                  : Number(target.value)
+            })
+          }
         />
       </div>
       <div className={classes.formControl}>

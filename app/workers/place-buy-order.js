@@ -7,7 +7,8 @@ module.exports = async (
     symbol,
     buy_order_type,
     sell_order_type,
-    sell_price
+    sell_price,
+    quantity_type
   }
 ) => {
   let excutedOrder;
@@ -17,19 +18,39 @@ module.exports = async (
     const bid_type = buy_order_type === "bid";
     if (bid_type) quote = await Robinhood.quote_data(symbol);
 
+    const bid_price = parseFloat(
+      bid_type ? quote.results[0].last_trade_price : buy_price
+    ).toFixed(2);
+
+    if (quantity_type === "percentage") {
+      const account = await Robinhood.accounts();
+
+      const buying_power =
+        account.results[0].margin_balances.unallocated_margin_cash;
+        
+      const requested = buying_power * quantity / 100;
+      quantity = Math.floor(requested / bid_price);
+
+      console.log(`buying_power: ${buying_power}`);
+      console.log(`requested: ${requested}`);
+      console.log(`calculated quantity: ${quantity}`);
+    }
+
     let options = {
       type: "limit",
       quantity,
-      bid_price: parseFloat(
-        bid_type ? quote.results[0].last_trade_price : buy_price
-      ).toFixed(2),
+      bid_price: bid_price,
       instrument: { url: instrument, symbol }
     };
 
     console.log("buy order options", options);
 
     const orderPlacedRes = await Robinhood.place_buy_order(options);
-    console.log(`id: ${orderPlacedRes.id}, buy: ${orderPlacedRes.price}`);
+    console.log(
+      `id: ${orderPlacedRes.id}, buy: ${orderPlacedRes.price}, quantity: ${
+        orderPlacedRes.quantity
+      }`
+    );
 
     if (sell_order_type !== "none") {
       excutedOrder = setInterval(async () => {

@@ -5,7 +5,8 @@ import {
   UPDATE_BUY_ORDER_TYPE,
   UPDATE_BUY_PRICE,
   UPDATE_SELL_PRICE,
-  PLACE_BUY_REQUEST
+  PLACE_BUY_REQUEST,
+  UPDATE_QUANTITY_TYPE
 } from "../constants/buy";
 const { ipcRenderer } = require("electron");
 
@@ -28,6 +29,11 @@ export const place_buy_order = () => async (dispatch, getState) => {
 export const update_quantity = ({ quantity }) => ({
   type: UPDATE_QUANTITY,
   quantity
+});
+
+export const update_quantity_type = ({ quantity_type }) => ({
+  type: UPDATE_QUANTITY_TYPE,
+  quantity_type
 });
 
 export const update_sell_order_type = ({ sell_order_type }) => ({

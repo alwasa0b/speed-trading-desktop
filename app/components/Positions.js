@@ -36,9 +36,9 @@ export default withStyles(styles)(
           <div className={classes.headerRow}>
             <div className={classes.cell}>Symbol</div>
             <div className={classes.cell}>Qty</div>
-            <div className={classes.cell}>Average Price</div>
-            <div className={classes.cell}>Gain %</div>
-            <div className={classes.cell}>Gain $</div>
+            <div className={classes.cell}>Avg Price</div>
+            <div className={classes.cell}>%</div>
+            <div className={classes.cell}>$</div>
             <div className={classes.cell}>Action</div>
           </div>
           {positions.map((position, i) => (

@@ -3,7 +3,8 @@ import {
   UPDATE_SELL_ORDER_TYPE,
   UPDATE_BUY_ORDER_TYPE,
   UPDATE_BUY_PRICE,
-  UPDATE_SELL_PRICE
+  UPDATE_SELL_PRICE,
+  UPDATE_QUANTITY_TYPE
 } from "../constants/buy";
 
 export default (
@@ -12,13 +13,16 @@ export default (
     sell_order_type: "none",
     sell_price: "",
     buy_order_type: "bid",
-    buy_price: ""
+    buy_price: "",
+    quantity_type: "count"
   },
   action
 ) => {
   switch (action.type) {
     case UPDATE_QUANTITY:
       return { ...state, quantity: action.quantity };
+    case UPDATE_QUANTITY_TYPE:
+      return { ...state, quantity_type: action.quantity_type, quantity: "" };
     case UPDATE_SELL_ORDER_TYPE:
       return { ...state, sell_order_type: action.sell_order_type };
     case UPDATE_BUY_ORDER_TYPE:
@@ -30,4 +34,4 @@ export default (
     default:
       return state;
   }
-}
+};
