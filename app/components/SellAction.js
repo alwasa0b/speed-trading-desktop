@@ -32,13 +32,13 @@ export default withStyles(styles)(
     order_type = "bid",
     price = 0,
     position,
-    quantity_type,
+    quantity_type = "count",
     quantity,
     place_stop_loss_order,
     place_sell_order,
     update_sell_order_type,
     update_sell_order_price,
-    update_quantity_type = "count",
+    update_quantity_type,
     update_quantity
   }) => (
     <div className={classes.root}>
