@@ -10,19 +10,22 @@ const styles = theme => ({
     maxWidth: 80
   },
   input: {
-    width: 50
+    width: 50,
+    height: 13
   },
   button: {
-    "font-size": "9px"
+    "font-size": "9px",
+    height: 19
   },
   quantityControl: {
-    margin: theme.spacing.unit,
+    marginRight: theme.spacing.unit,
     maxWidth: 220,
     maxHeight: 20
   },
   quantityInput: {
     marginLeft: 2,
-    width: 70
+    width: 50,
+    maxHeight: 13
   }
 });
 
@@ -32,7 +35,7 @@ export default withStyles(styles)(
     order_type = "bid",
     price = 0,
     position,
-    quantity_type = "count",
+    quantity_type,
     quantity,
     place_stop_loss_order,
     place_sell_order,
@@ -43,7 +46,7 @@ export default withStyles(styles)(
   }) => (
     <div className={classes.root}>
       <div className={classes.quantityControl}>
-        <label className={classes.label}>Quantity: </label>
+        <label className={classes.label}>Qty: </label>
         <select
           value={quantity_type}
           onChange={({ target }) =>
@@ -61,13 +64,15 @@ export default withStyles(styles)(
           className={classes.quantityInput}
           value={quantity}
           min={0}
-          max={quantity_type === "percentage" ? 100 : Infinity}
+          max={quantity_type === "percentage" ? 100 : position.quantity}
           onChange={({ target }) =>
             update_quantity({
               quantity:
                 quantity_type === "percentage" && Number(target.value) > 100
                   ? 100
-                  : Number(target.value),
+                  : Number(target.value) > position.quantity
+                    ? Math.floor(position.quantity)
+                    : Number(target.value),
               symbol: position.symbol
             })
           }
@@ -122,7 +127,7 @@ export default withStyles(styles)(
                 })
           }
         >
-          Sell All
+          Sell
         </button>
       </div>
     </div>

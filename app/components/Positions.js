@@ -19,8 +19,13 @@ const styles = theme => ({
   },
   cell: {
     display: "table-cell",
-    padding: "3px 10px",
-    "font-size": "11px"
+    padding: "2px 2px",
+    "font-size": "10px"
+  },
+  action: {
+    display: "table-cell",
+    padding: "2px 2px",
+    "font-size": "10px"
   }
 });
 
@@ -62,7 +67,7 @@ export default withStyles(styles)(
                   }
                 />
               </div>
-              <div className={classes.cell}>
+              <div className={classes.action}>
                 <SellAction
                   position={position}
                   {...sell_orders[position.symbol]}

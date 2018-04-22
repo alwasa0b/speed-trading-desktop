@@ -47,7 +47,7 @@ export default withStyles(styles)(
   }) => (
     <div className={classes.root}>
       <div className={classes.quantityControl}>
-        <label className={classes.label}>Quantity: </label>
+        <label className={classes.label}>Qty: </label>
         <select
           value={quantity_type}
           onChange={({ target }) =>
