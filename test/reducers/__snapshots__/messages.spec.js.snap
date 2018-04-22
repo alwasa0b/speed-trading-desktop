@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`reducers messages should handle ORDERS_UPDATED 1`] = `
+Object {
+  "orders": Array [
+    Object {
+      "symbol": "symbol",
+    },
+  ],
+}
+`;
+
+exports[`reducers messages should handle POSITIONS_UPDATED 1`] = `
+Object {
+  "positions": Array [
+    Object {
+      "symbol": "symbol",
+    },
+  ],
+}
+`;
+
+exports[`reducers messages should handle PRICE_UPDATED 1`] = `
+Object {
+  "price": 10,
+}
+`;
+
+exports[`reducers messages should handle initial state 1`] = `Object {}`;

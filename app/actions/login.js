@@ -11,9 +11,9 @@ import { ipcRenderer } from "electron";
 const login_success = () => ({ type: LOGIN_SUCCESS });
 const login_failed = () => ({ type: LOGIN_FAILURE });
 
-export const login = () => async (dispatch, getState) => {
-  await ipcRenderer.send(LOGIN_REQUEST, { login: getState().login });
-  ipcRenderer.once(LOGIN_SUCCESS, async (event, data) => {
+export const login = () => async (dispatch, getState, ipc = ipcRenderer) => {
+  await ipc.send(LOGIN_REQUEST, { login: getState().login });
+  ipc.once(LOGIN_SUCCESS, async (event, data) => {
     dispatch(login_success());
   });
 };

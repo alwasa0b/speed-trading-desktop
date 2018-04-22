@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`buy actions buy_order_success should create buy_order_success action 1`] = `
+Object {
+  "type": "PLACE_BUY_REQUEST_SUCCESS",
+}
+`;
+
+exports[`buy actions update_buy_order_type should create update_buy_order_type action with passed buy_order_type 1`] = `
+Object {
+  "buy_order_type": "stop",
+  "type": "UPDATE_BUY_ORDER_TYPE",
+}
+`;
+
+exports[`buy actions update_buy_price should create update_buy_price action with passed buy_price 1`] = `
+Object {
+  "buy_price": 10,
+  "type": "UPDATE_BUY_PRICE",
+}
+`;
+
+exports[`buy actions update_quantity should create update_quantity action with passed quantity 1`] = `
+Object {
+  "quantity": 50,
+  "type": "UPDATE_QUANTITY",
+}
+`;
+
+exports[`buy actions update_quantity_type should create update_quantity_type action with passed quantity_type 1`] = `
+Object {
+  "quantity_type": "count",
+  "type": "UPDATE_QUANTITY_TYPE",
+}
+`;
+
+exports[`buy actions update_sell_order_type should create update_sell_order_type action with passed sell_order_type 1`] = `
+Object {
+  "sell_order_type": "bid",
+  "type": "UPDATE_SELL_ORDER_TYPE",
+}
+`;
+
+exports[`buy actions update_sell_price should create update_sell_price action with passed sell_price 1`] = `
+Object {
+  "sell_price": 10,
+  "type": "UPDATE_SELL_PRICE",
+}
+`;

@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`reducers login should handle initial state 1`] = `
+Object {
+  "password": "",
+  "username": "",
+}
+`;
+
+exports[`reducers login should handle update_password 1`] = `
+Object {
+  "password": "test_password",
+  "username": "",
+}
+`;
+
+exports[`reducers login should handle update_username 1`] = `
+Object {
+  "password": "",
+  "username": "test_username",
+}
+`;

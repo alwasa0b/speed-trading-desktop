@@ -10,18 +10,22 @@ import {
 } from "../constants/buy";
 const { ipcRenderer } = require("electron");
 
-const buy_order_success = () => ({ type: PLACE_BUY_REQUEST_SUCCESS });
-export const place_buy_order = () => async (dispatch, getState) => {
+export const buy_order_success = () => ({ type: PLACE_BUY_REQUEST_SUCCESS });
+export const place_buy_order = () => async (
+  dispatch,
+  getState,
+  ipc = ipcRenderer
+) => {
   const { buy_order, messages } = getState();
   const { instrument, symbol } = messages.price;
 
-  await ipcRenderer.send(PLACE_BUY_REQUEST, {
+  await ipc.send(PLACE_BUY_REQUEST, {
     ...buy_order,
     instrument,
     symbol
   });
 
-  ipcRenderer.once(PLACE_BUY_REQUEST_SUCCESS, async (event, data) => {
+  ipc.once(PLACE_BUY_REQUEST_SUCCESS, async (event, data) => {
     dispatch(buy_order_success(data));
   });
 };

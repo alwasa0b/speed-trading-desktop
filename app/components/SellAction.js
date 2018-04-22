@@ -52,7 +52,8 @@ export default withStyles(styles)(
           onChange={({ target }) =>
             update_quantity_type({
               quantity_type: target.value,
-              symbol: position.symbol
+              symbol: position.symbol,
+              quantity: Math.floor(target.value === "percentage" ? 100 : position.quantity)
             })
           }
         >

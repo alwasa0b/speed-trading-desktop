@@ -1,0 +1,78 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`reducers buy_order should handle initial state 1`] = `
+Object {
+  "buy_order_type": "bid",
+  "buy_price": "",
+  "quantity": "",
+  "quantity_type": "count",
+  "sell_order_type": "none",
+  "sell_price": "",
+}
+`;
+
+exports[`reducers buy_order should handle update_buy_order_type 1`] = `
+Object {
+  "buy_order_type": "buy_order_test_type",
+  "buy_price": "",
+  "quantity": "",
+  "quantity_type": "count",
+  "sell_order_type": "none",
+  "sell_price": "",
+}
+`;
+
+exports[`reducers buy_order should handle update_buy_price 1`] = `
+Object {
+  "buy_order_type": "bid",
+  "buy_price": 2,
+  "quantity": "",
+  "quantity_type": "count",
+  "sell_order_type": "none",
+  "sell_price": "",
+}
+`;
+
+exports[`reducers buy_order should handle update_quantity 1`] = `
+Object {
+  "buy_order_type": "bid",
+  "buy_price": "",
+  "quantity": 1,
+  "quantity_type": "count",
+  "sell_order_type": "none",
+  "sell_price": "",
+}
+`;
+
+exports[`reducers buy_order should handle update_quantity_type 1`] = `
+Object {
+  "buy_order_type": "bid",
+  "buy_price": "",
+  "quantity": "",
+  "quantity_type": "quantity_test_type",
+  "sell_order_type": "none",
+  "sell_price": "",
+}
+`;
+
+exports[`reducers buy_order should handle update_sell_order_type 1`] = `
+Object {
+  "buy_order_type": "bid",
+  "buy_price": "",
+  "quantity": "",
+  "quantity_type": "count",
+  "sell_order_type": "sell_order_test_type",
+  "sell_price": "",
+}
+`;
+
+exports[`reducers buy_order should handle update_sell_price 1`] = `
+Object {
+  "buy_order_type": "bid",
+  "buy_price": "",
+  "quantity": "",
+  "quantity_type": "count",
+  "sell_order_type": "none",
+  "sell_price": 3,
+}
+`;

@@ -1,0 +1,62 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`reducers sell_order should handle POSITIONS_UPDATED 1`] = `
+Object {
+  "symbol1": Object {
+    "quantity": 1,
+    "quantity_type": "count",
+  },
+  "symbol2": Object {
+    "quantity": 2,
+    "quantity_type": "count",
+  },
+}
+`;
+
+exports[`reducers sell_order should handle initial state 1`] = `Object {}`;
+
+exports[`reducers sell_order should handle update_quantity 1`] = `
+Object {
+  "test_symbol": Object {
+    "quantity": 1,
+  },
+}
+`;
+
+exports[`reducers sell_order should handle update_quantity_type 1`] = `
+Object {
+  "test_symbol": Object {
+    "quantity": undefined,
+    "quantity_type": "test_type",
+  },
+}
+`;
+
+exports[`reducers sell_order should handle update_sell_order_price 1`] = `
+Object {
+  "test_symbol": Object {
+    "price": 1,
+  },
+}
+`;
+
+exports[`reducers sell_order should handle update_sell_order_type 1`] = `
+Object {
+  "test_symbol": Object {
+    "order_type": "test_symbol_type",
+  },
+}
+`;
+
+exports[`reducers sell_order should only update quantity_type and quantity for symbol1 1`] = `
+Object {
+  "symbol1": Object {
+    "quantity": undefined,
+    "quantity_type": "test_type",
+  },
+  "symbol2": Object {
+    "quantity": 2,
+    "quantity_type": "count",
+  },
+}
+`;

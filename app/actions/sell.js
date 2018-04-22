@@ -15,7 +15,7 @@ export const place_sell_order = ({
   order_type,
   quantity,
   quantity_type
-}) => async dispatch => {
+}) => async (dispatch, state, ipc = ipcRenderer) => {
   const {
     instrument,
     symbol,
@@ -23,7 +23,7 @@ export const place_sell_order = ({
     shares_held_for_sells
   } = sell_order;
 
-  await ipcRenderer.send(PLACE_SELL_REQUEST, {
+  await ipc.send(PLACE_SELL_REQUEST, {
     price,
     order_type,
     requested_quantity: quantity,
@@ -34,7 +34,7 @@ export const place_sell_order = ({
     shares_held_for_sells
   });
 
-  ipcRenderer.once(PLACE_SELL_REQUEST_SUCCESS, async (event, data) => {
+  ipc.once(PLACE_SELL_REQUEST_SUCCESS, async (event, data) => {
     dispatch(sell_order_success(data));
   });
 };
@@ -53,8 +53,9 @@ export const update_quantity = ({ quantity, symbol }) => ({
   symbol
 });
 
-export const update_quantity_type = ({ quantity_type, symbol }) => ({
+export const update_quantity_type = ({ quantity_type, symbol, quantity }) => ({
   type: UPDATE_SELL_ORDER_QUANTITY_TYPE,
   quantity_type,
-  symbol
+  symbol,
+  quantity
 });

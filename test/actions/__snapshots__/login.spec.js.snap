@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`login actions update_password should create update_password action 1`] = `
+Object {
+  "password": "test_password",
+  "type": "UPDATE_PASSWORD",
+}
+`;
+
+exports[`login actions update_username should create update_username action 1`] = `
+Object {
+  "type": "UPDATE_USERNAME",
+  "username": "test_username",
+}
+`;

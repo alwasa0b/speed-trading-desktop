@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`reducers authentication should handle LOGIN_SUCCESS 1`] = `
+Object {
+  "loggedIn": true,
+}
+`;
+
+exports[`reducers authentication should handle initial state 1`] = `
+Object {
+  "loggedIn": false,
+}
+`;

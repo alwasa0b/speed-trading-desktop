@@ -1,0 +1,34 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`sell actions update_quantity should create update_quantity action 1`] = `
+Object {
+  "quantity": 100,
+  "symbol": "test_symbol",
+  "type": "UPDATE_SELL_ORDER_QUANTITY",
+}
+`;
+
+exports[`sell actions update_quantity_type should create update_quantity_type action 1`] = `
+Object {
+  "quantity": 100,
+  "quantity_type": "test_quantity_type",
+  "symbol": "test_symbol",
+  "type": "UPDATE_SELL_ORDER_QUANTITY_TYPE",
+}
+`;
+
+exports[`sell actions update_sell_order_price should create update_sell_order_price action 1`] = `
+Object {
+  "price": 100,
+  "symbol": "test_symbol",
+  "type": "UPDATE_SELL_ORDER_PRICE_PRICE",
+}
+`;
+
+exports[`sell actions update_sell_order_type should create update_sell_order_type action 1`] = `
+Object {
+  "order_type": "test_type",
+  "symbol": "test_symbol",
+  "type": "UPDATE_SELL_ORDER_TYPE_TYPE",
+}
+`;

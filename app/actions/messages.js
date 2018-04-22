@@ -9,29 +9,41 @@ import {
 
 const { ipcRenderer } = require("electron");
 
-export const update_positions = () => async dispatch => {
-  await ipcRenderer.removeAllListeners(POSITIONS_UPDATED);
-  await ipcRenderer.send(UPDATE_POSITIONS);
+export const update_positions = () => async (
+  dispatch,
+  getState,
+  ipc = ipcRenderer
+) => {
+  await ipc.removeAllListeners(POSITIONS_UPDATED);
+  await ipc.send(UPDATE_POSITIONS);
 
-  ipcRenderer.on(POSITIONS_UPDATED, async (event, data) => {
+  ipc.on(POSITIONS_UPDATED, async (event, data) => {
     dispatch({ type: POSITIONS_UPDATED, data });
   });
 };
 
-export const update_orders = () => async dispatch => {
-  await ipcRenderer.removeAllListeners(ORDERS_UPDATED);
-  await ipcRenderer.send(UPDATE_ORDERS);
+export const update_orders = () => async (
+  dispatch,
+  getState,
+  ipc = ipcRenderer
+) => {
+  await ipc.removeAllListeners(ORDERS_UPDATED);
+  await ipc.send(UPDATE_ORDERS);
 
-  ipcRenderer.on(ORDERS_UPDATED, async (event, data) => {
+  ipc.on(ORDERS_UPDATED, async (event, data) => {
     dispatch({ type: ORDERS_UPDATED, data });
   });
 };
 
-export const update_price = ({ symbol }) => async (dispatch, getState) => {
-  await ipcRenderer.removeAllListeners(PRICE_UPDATED);
-  await ipcRenderer.send(UPDATE_PRICE, { symbol });
+export const update_price = ({ symbol }) => async (
+  dispatch,
+  getState,
+  ipc = ipcRenderer
+) => {
+  await ipc.removeAllListeners(PRICE_UPDATED);
+  await ipc.send(UPDATE_PRICE, { symbol });
 
-  ipcRenderer.on(PRICE_UPDATED, async (event, data) => {
+  ipc.on(PRICE_UPDATED, async (event, data) => {
     dispatch({ type: PRICE_UPDATED, data });
   });
 };

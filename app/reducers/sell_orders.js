@@ -38,7 +38,7 @@ export default (state = {}, action) => {
         [action.symbol]: {
           ...state[action.symbol],
           quantity_type: action.quantity_type,
-          quantity: 0
+          quantity: action.quantity
         }
       };
     case UPDATE_SELL_ORDER_TYPE_TYPE:
