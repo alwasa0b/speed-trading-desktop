@@ -7,7 +7,9 @@ describe("reducers", () => {
     });
 
     it("should handle LOGIN_SUCCESS", () => {
-        expect(authentication(undefined, {type:"LOGIN_SUCCESS"})).toMatchSnapshot();
-      });
+      expect(
+        authentication(undefined, { type: "LOGIN_SUCCESS" })
+      ).toMatchSnapshot();
+    });
   });
 });

@@ -58,6 +58,7 @@ export default withStyles(styles)(
             onChange={({ target }) =>
               update_password({ password: target.value })
             }
+            onKeyDown={e => (e.key === "Enter" ? login() : null)}
           />
           <div align="center">
             <Button
