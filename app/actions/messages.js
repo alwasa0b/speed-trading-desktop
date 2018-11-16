@@ -4,10 +4,24 @@ import {
   UPDATE_PRICE,
   PRICE_UPDATED,
   POSITIONS_UPDATED,
-  ORDERS_UPDATED
+  ORDERS_UPDATED,
+  PROGRESS_UPDATE,
+  START_LOGGING
 } from "../constants/messages";
 
 const { ipcRenderer } = require("electron");
+
+export const start_logging = () => async (
+  dispatch,
+  getState,
+  ipc = ipcRenderer
+) => {
+  await ipc.removeAllListeners(PROGRESS_UPDATE);
+  ipc.on(PROGRESS_UPDATE, async (event, payload) => {
+    dispatch({ type: PROGRESS_UPDATE, payload });
+  });
+  await ipc.send(START_LOGGING);
+};
 
 export const update_positions = () => async (
   dispatch,

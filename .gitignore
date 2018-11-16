@@ -46,3 +46,4 @@ main.js.map
 
 .idea
 npm-debug.log.*
+app/reducers/login.js

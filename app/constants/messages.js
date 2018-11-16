@@ -4,3 +4,15 @@ export const UPDATE_ORDERS = "UPDATE_ORDERS";
 export const PRICE_UPDATED = "PRICE_UPDATED";
 export const POSITIONS_UPDATED = "POSITIONS_UPDATED";
 export const ORDERS_UPDATED = "ORDERS_UPDATED";
+
+export const START_WORKER = "START_WORKER";
+export const WORKER_STARTED = "WORKER_STARTED";
+export const STOP_WORKER = "STOP_WORKER";
+export const WORKER_STOPPED = "WORKER_STOPPED";
+
+export const PROGRESS_UPDATE = "PROGRESS_UPDATE";
+export const START_LOGGING = "START_LOGGING";
+
+export const INFO = "INFO";
+export const ERROR = "ERROR";
+export const WARN = "WARN";

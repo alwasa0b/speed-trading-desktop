@@ -1,0 +1,29 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Main Process",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceRoot}",
+            "args": [],
+            "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
+            "windows": {
+                "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
+            },
+            "runtimeArgs": [
+                "-r",
+                "babel-register",
+                "./app/main.dev.js"
+            ],
+            "env": {
+                "NODE_ENV": "development",
+                "HOT": "1"
+            },
+            "protocol": "inspector",
+            "sourceMaps": true,
+            "outFiles": [],
+            "stopOnEntry": false
+        }
+    ]
+}

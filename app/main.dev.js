@@ -2,15 +2,14 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import MenuBuilder from "./menu";
 
 import {
-  login,
-  logout,
   place_cancel_order,
   place_stop_loss_order,
   place_buy_order,
   place_sell_order,
   update_price,
   update_positions,
-  update_orders
+  update_orders,
+  auto_trader_service
 } from "./workers";
 
 import {
@@ -19,7 +18,13 @@ import {
   UPDATE_PRICE,
   PRICE_UPDATED,
   POSITIONS_UPDATED,
-  ORDERS_UPDATED
+  ORDERS_UPDATED,
+  START_WORKER,
+  STOP_WORKER,
+  WORKER_STARTED,
+  WORKER_STOPPED,
+  PROGRESS_UPDATE,
+  START_LOGGING
 } from "./constants/messages";
 
 import { LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE } from "./constants/login";
@@ -40,6 +45,7 @@ import {
   PLACE_STOP_REQUEST,
   PLACE_STOP_REQUEST_SUCCESS
 } from "./constants/stop";
+import { logout, login } from "./robinhood-service";
 
 let mainWindow = null;
 
@@ -100,7 +106,7 @@ app.on("ready", async () => {
   mainWindow = new BrowserWindow({
     show: false,
     width: 500,
-    height: 660,
+    height: 900,
     resizable: false
   });
 
@@ -176,3 +182,5 @@ ipcMain.on(UPDATE_ORDERS, event => {
     5000
   );
 });
+
+auto_trader_service(ipcMain);

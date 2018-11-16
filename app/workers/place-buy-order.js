@@ -27,8 +27,8 @@ module.exports = async (
 
       const buying_power =
         account.results[0].margin_balances.unallocated_margin_cash;
-        
-      const requested = buying_power * quantity / 100;
+
+      const requested = (buying_power * quantity) / 100;
       quantity = Math.floor(requested / bid_price);
 
       console.log(`buying_power: ${buying_power}`);

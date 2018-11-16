@@ -1,22 +1,9 @@
-const init = require("./util");
+import { Robinhood } from "../robinhood-service";
 const placeBuyOrder = require("./place-buy-order");
 const placeSellOrder = require("./place-sell-order");
 const placeStopLossOrder = require("./place-stop-loss-order");
+export const auto_trader_service = require("./auto-trader");
 const mapLimit = require("promise-map-limit");
-
-let Robinhood;
-
-export const login = async credentials => {
-  Robinhood = await init(credentials);
-  return { loggedin: true };
-};
-
-export const logout = async credentials => {
-  if (Robinhood == null) return;
-  Robinhood = await Robinhood.expire_token();
-  Robinhood = null;
-  return { loggedout: true };
-};
 
 export const place_cancel_order = async order => {
   const placedOrder = await Robinhood.cancel_order(order);
