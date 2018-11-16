@@ -23,6 +23,7 @@ module.exports = ipcMain => {
   const stop = event => {
     logger.info("stopping");
     stopped = true;
+    event.sender.send(WORKER_STOPPED);
   };
 
   ipcMain.on(STOP_WORKER, stop);
@@ -49,10 +50,12 @@ module.exports = ipcMain => {
     });
 
     logger.info("waiting for sell order to fill");
-    await makeSureWeFillSellOrder({ sellOrder });
+    await makeSureWeFillSellOrder({ sellOrder, instructions, filledOrder });
 
     logger.info(`waiting ${instructions.time_interval * 1000} seconds`);
-    setTimeout(() => start({ instructions }), instructions.time_interval);
+
+    await timeout(instructions.time_interval * 1000);
+    start({ instructions });
   };
 
   const buy_order = async ({
@@ -63,10 +66,11 @@ module.exports = ipcMain => {
     quantity,
     symbol
   }) => {
+    if (stopped) return;
     const quote = await Robinhood.quote_data(symbol);
 
     const bid_price = parseFloat(
-      quote.results[0].bid_price - under_bid_price
+      Number(quote.results[0].last_trade_price) - Number(under_bid_price)
     ).toFixed(2);
 
     const options = {
@@ -89,9 +93,15 @@ module.exports = ipcMain => {
     return result;
   };
 
-  const sell_order = async ({ filledOrder, over_my_price, symbol }) => {
+  const sell_order = async ({
+    instructions,
+    filledOrder,
+    over_my_price,
+    symbol
+  }) => {
+    if (stopped) return;
     const sell_price = parseFloat(
-      filledOrder.average_price + over_my_price
+      Number(filledOrder.average_price) + Number(over_my_price)
     ).toFixed(2);
 
     const options = {
@@ -119,7 +129,7 @@ module.exports = ipcMain => {
     while (!stopped) {
       const order = await Robinhood.url(buyOrder.url);
       if (order.state === "filled") {
-        return buyOrder;
+        return order;
       }
 
       await timeout(1000);
@@ -132,13 +142,24 @@ module.exports = ipcMain => {
     }
   };
 
-  const makeSureWeFillSellOrder = async ({ sellOrder }) => {
+  const makeSureWeFillSellOrder = async ({
+    sellOrder,
+    instructions,
+    filledOrder
+  }) => {
     let numberOfTries = 0;
     while (!stopped) {
       const order = await Robinhood.url(sellOrder.url);
 
       if (order.state === "filled") {
         return sellOrder;
+      }
+
+      if (order.state === "rejected") {
+        sellOrder = await sell_order({
+          ...instructions,
+          filledOrder
+        });
       }
 
       await timeout(1000);

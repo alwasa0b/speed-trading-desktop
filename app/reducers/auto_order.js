@@ -30,7 +30,7 @@ export default (
     case UPDATE_OVER_ASK_PRICE:
       return { ...state, over_my_price: Number(action.payload) };
     case UPDATE_QUANTITY_AUTO:
-      return { ...state, over_my_price: Number(action.payload) };
+      return { ...state, quantity: Number(action.payload) };
     case WORKER_STARTED:
       return { ...state, running: true };
     case WORKER_STOPPED:
