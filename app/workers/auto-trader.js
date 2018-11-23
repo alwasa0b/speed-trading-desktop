@@ -2,63 +2,82 @@ import {
   START_WORKER,
   STOP_WORKER,
   WORKER_STARTED,
-  WORKER_STOPPED,
-  PROGRESS_UPDATE
+  WORKER_STOPPED
 } from "../constants/messages";
 
 import { logger } from "../logger";
 import { Robinhood } from "../robinhood-service";
 
 module.exports = ipcMain => {
-  let stopped = false;
-
+  let auto_trader = null;
   ipcMain.on(START_WORKER, (event, instructions) => {
-    stopped = false;
-    start({
-      instructions
-    });
+    auto_trader = new AutoTrader(instructions);
+    auto_trader.start();
     event.sender.send(WORKER_STARTED);
   });
 
   const stop = event => {
     logger.info("stopping");
-    stopped = true;
+    auto_trader.stop();
     event.sender.send(WORKER_STOPPED);
   };
 
   ipcMain.on(STOP_WORKER, stop);
+};
 
-  const start = async ({ instructions }) => {
-    if (stopped) {
-      stopped = false;
+const timeout = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+class AutoTrader {
+  _running = false;
+
+  constructor(instructions) {
+    this._instructions = instructions;
+  }
+
+  start = () => {
+    this._running = true;
+    this._start({ instructions: this._instructions });
+  };
+
+  stop = () => {
+    this._running = false;
+  };
+
+  _start = async ({ instructions }) => {
+    if (!this._running) {
       logger.info("stopped");
       return;
     }
+
     logger.info("starting a buy order");
-    const buyOrder = await buy_order(instructions);
+    const buyOrder = await this._buy_order(instructions);
 
     logger.info("waiting for buy order to fill");
-    const filledOrder = await makeSureWeFillBuyOrder({
+    const filledOrder = await this._makeSureWeFillBuyOrder({
       instructions,
       buyOrder
     });
 
     logger.info("starting sell order");
-    const sellOrder = await sell_order({
+    const sellOrder = await this._sell_order({
       ...instructions,
       filledOrder
     });
 
     logger.info("waiting for sell order to fill");
-    await makeSureWeFillSellOrder({ sellOrder, instructions, filledOrder });
+    await this._makeSureWeFillSellOrder({
+      sellOrder,
+      instructions,
+      filledOrder
+    });
 
     logger.info(`waiting ${instructions.time_interval * 1000} seconds`);
 
     await timeout(instructions.time_interval * 1000);
-    start({ instructions });
+    this._start({ instructions });
   };
 
-  const buy_order = async ({
+  _buy_order = async ({
     instrument,
     messages,
     over_my_price,
@@ -66,7 +85,7 @@ module.exports = ipcMain => {
     quantity,
     symbol
   }) => {
-    if (stopped) return;
+    if (!this._running) return;
     const quote = await Robinhood.quote_data(symbol);
 
     const bid_price = parseFloat(
@@ -93,13 +112,13 @@ module.exports = ipcMain => {
     return result;
   };
 
-  const sell_order = async ({
+  _sell_order = async ({
     instructions,
     filledOrder,
     over_my_price,
     symbol
   }) => {
-    if (stopped) return;
+    if (!this._running) return;
     const sell_price = parseFloat(
       Number(filledOrder.average_price) + Number(over_my_price)
     ).toFixed(2);
@@ -124,11 +143,16 @@ module.exports = ipcMain => {
     return result;
   };
 
-  const makeSureWeFillBuyOrder = async ({ buyOrder }) => {
+  _makeSureWeFillBuyOrder = async ({ buyOrder }) => {
     let numberOfTries = 0;
-    while (!stopped) {
+    while (this._running) {
       const order = await Robinhood.url(buyOrder.url);
+
       if (order.state === "filled") {
+        return order;
+      }
+
+      if (order.state === "cancelled") {
         return order;
       }
 
@@ -142,21 +166,25 @@ module.exports = ipcMain => {
     }
   };
 
-  const makeSureWeFillSellOrder = async ({
+  _makeSureWeFillSellOrder = async ({
     sellOrder,
     instructions,
     filledOrder
   }) => {
     let numberOfTries = 0;
-    while (!stopped) {
+    while (this._running) {
       const order = await Robinhood.url(sellOrder.url);
 
       if (order.state === "filled") {
         return sellOrder;
       }
 
+      if (order.state === "cancelled") {
+        return sellOrder;
+      }
+
       if (order.state === "rejected") {
-        sellOrder = await sell_order({
+        sellOrder = await this._sell_order({
           ...instructions,
           filledOrder
         });
@@ -171,8 +199,4 @@ module.exports = ipcMain => {
       }
     }
   };
-
-  return { start, stop };
-};
-
-const timeout = ms => new Promise(resolve => setTimeout(resolve, ms));
+}
