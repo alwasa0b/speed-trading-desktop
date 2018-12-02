@@ -1,5 +1,5 @@
 import React from "react";
-import { withStyles } from "material-ui/styles";
+import withStyles from "@material-ui/core/styles/withStyles";
 
 const styles = theme => ({
   root: {
@@ -53,7 +53,9 @@ export default withStyles(styles)(
             update_quantity_type({
               quantity_type: target.value,
               symbol: position.symbol,
-              quantity: Math.floor(target.value === "percentage" ? 100 : position.quantity)
+              quantity: Math.floor(
+                target.value === "percentage" ? 100 : position.quantity
+              )
             })
           }
         >
@@ -72,8 +74,8 @@ export default withStyles(styles)(
                 quantity_type === "percentage" && Number(target.value) > 100
                   ? 100
                   : Number(target.value) > position.quantity
-                    ? Math.floor(position.quantity)
-                    : Number(target.value),
+                  ? Math.floor(position.quantity)
+                  : Number(target.value),
               symbol: position.symbol
             })
           }

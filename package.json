@@ -175,6 +175,8 @@
     "webpack-merge": "^4.1.1"
   },
   "dependencies": {
+    "@material-ui/core": "^3.5.1",
+    "@material-ui/icons": "^3.0.1",
     "async": "^2.6.0",
     "auto-retry": "^1.4.0",
     "body-parser": "^1.18.2",
@@ -189,8 +191,6 @@
     "history": "^4.7.2",
     "http": "^0.0.0",
     "keycode": "^2.2.0",
-    "material-ui": "^1.0.0-beta.38",
-    "material-ui-icons": "^1.0.0-beta.36",
     "mz": "^2.7.0",
     "promise-map-limit": "^1.0.0",
     "promise-retry": "^1.1.1",

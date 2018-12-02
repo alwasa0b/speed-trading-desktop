@@ -1,6 +1,6 @@
 import React from "react";
-import { withStyles } from "material-ui/styles";
-import Paper from "material-ui/Paper";
+import withStyles from "@material-ui/core/styles/withStyles";
+import Paper from "@material-ui/core/Paper";
 import OrderAction from "../containers/OrderAction";
 import Positions from "../containers/Positions";
 import Orders from "../containers/Orders";

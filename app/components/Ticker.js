@@ -1,7 +1,7 @@
 import React from "react";
-import { FormControl } from "material-ui/Form";
-import { withStyles } from "material-ui/styles";
-import Typography from "material-ui/Typography";
+import FormControl from "@material-ui/core/FormControl";
+import withStyles from "@material-ui/core/styles/withStyles";
+import Typography from "@material-ui/core/Typography";
 
 const styles = theme => ({
   root: {

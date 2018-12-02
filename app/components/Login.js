@@ -1,9 +1,9 @@
 import React from "react";
-import TextField from "material-ui/TextField";
-import { FormControl } from "material-ui/Form";
-import { withStyles } from "material-ui/styles";
-import Button from "material-ui/Button";
-import Paper from "material-ui/Paper";
+import TextField from "@material-ui/core/TextField";
+import FormControl from "@material-ui/core/FormControl";
+import withStyles from "@material-ui/core/styles/withStyles";
+import Button from "@material-ui/core/Button";
+import Paper from "@material-ui/core/Paper";
 
 const styles = theme => ({
   root: {
@@ -63,7 +63,7 @@ export default withStyles(styles)(
           <div align="center">
             <Button
               align="center"
-              variant="raised"
+              variant="contained"
               color="primary"
               className={classes.button}
               onClick={login}

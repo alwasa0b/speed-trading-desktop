@@ -1,6 +1,6 @@
 import React from "react";
 import NumberParser from "./NumberParser";
-import { withStyles } from "material-ui/styles";
+import withStyles from "@material-ui/core/styles/withStyles";
 
 const styles = theme => ({
   table: {
