@@ -18,16 +18,10 @@ import {
   UPDATE_PRICE,
   PRICE_UPDATED,
   POSITIONS_UPDATED,
-  ORDERS_UPDATED,
-  START_WORKER,
-  STOP_WORKER,
-  WORKER_STARTED,
-  WORKER_STOPPED,
-  PROGRESS_UPDATE,
-  START_LOGGING
+  ORDERS_UPDATED
 } from "./constants/messages";
 
-import { LOGIN_REQUEST, LOGIN_SUCCESS, LOGIN_FAILURE } from "./constants/login";
+import { LOGIN_REQUEST, LOGIN_SUCCESS } from "./constants/login";
 
 import { PLACE_BUY_REQUEST, PLACE_BUY_REQUEST_SUCCESS } from "./constants/buy";
 
@@ -171,7 +165,7 @@ ipcMain.on(UPDATE_POSITIONS, event => {
   if (update_position_handle != null) clearInterval(update_position_handle);
   update_position_handle = setInterval(
     update_positions(data => event.sender.send(POSITIONS_UPDATED, data)),
-    5000
+    1000
   );
 });
 
@@ -179,7 +173,7 @@ ipcMain.on(UPDATE_ORDERS, event => {
   if (update_order_handle != null) clearInterval(update_order_handle);
   update_order_handle = setInterval(
     update_orders(data => event.sender.send(ORDERS_UPDATED, data)),
-    5000
+    1000
   );
 });
 

@@ -2,7 +2,8 @@ import {
   UPDATE_TIME_INTERVAL,
   UPDATE_UNDER_BID_PRICE,
   UPDATE_OVER_ASK_PRICE,
-  UPDATE_QUANTITY_AUTO
+  UPDATE_QUANTITY_AUTO,
+  NUMBER_OF_RUNS
 } from "../constants/auto";
 
 import {
@@ -23,6 +24,8 @@ export default (
   action
 ) => {
   switch (action.type) {
+    case NUMBER_OF_RUNS:
+      return { ...state, number_of_runs: parseNumber(action.payload) };
     case UPDATE_TIME_INTERVAL:
       return { ...state, time_interval: parseNumber(action.payload) };
     case UPDATE_UNDER_BID_PRICE:

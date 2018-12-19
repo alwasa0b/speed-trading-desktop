@@ -2,7 +2,8 @@ import {
   UPDATE_TIME_INTERVAL,
   UPDATE_UNDER_BID_PRICE,
   UPDATE_OVER_ASK_PRICE,
-  UPDATE_QUANTITY_AUTO
+  UPDATE_QUANTITY_AUTO,
+  NUMBER_OF_RUNS
 } from "../constants/auto";
 import {
   START_WORKER,
@@ -12,6 +13,11 @@ import {
 } from "../constants/messages";
 
 const { ipcRenderer } = require("electron");
+
+export const update_number_of_runs = payload => ({
+  type: NUMBER_OF_RUNS,
+  payload
+});
 
 export const update_time_interval = payload => ({
   type: UPDATE_TIME_INTERVAL,
@@ -47,6 +53,10 @@ const start_worker = async (dispatch, getState, ipc = ipcRenderer) => {
     dispatch({ type: WORKER_STARTED });
   });
 
+  ipc.once(WORKER_STOPPED, async event => {
+    dispatch({ type: WORKER_STOPPED });
+  });
+
   await ipc.send(START_WORKER, {
     ...auto_order,
     instrument,
@@ -57,10 +67,6 @@ const start_worker = async (dispatch, getState, ipc = ipcRenderer) => {
 const stop_worker = async (dispatch, getState, ipc = ipcRenderer) => {
   const { auto_order, messages } = getState();
   const { instrument, symbol } = messages.price;
-
-  ipc.once(WORKER_STOPPED, async event => {
-    dispatch({ type: WORKER_STOPPED });
-  });
 
   await ipc.send(STOP_WORKER, {
     ...auto_order,

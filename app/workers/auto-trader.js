@@ -10,17 +10,20 @@ import { Robinhood } from "../robinhood-service";
 
 module.exports = ipcMain => {
   let auto_trader = null;
-  ipcMain.on(START_WORKER, (event, instructions) => {
-    auto_trader = new AutoTrader(instructions);
-    auto_trader.start();
-    event.sender.send(WORKER_STARTED);
-  });
 
   const stop = event => {
     logger.info("stopping");
     auto_trader.stop();
     event.sender.send(WORKER_STOPPED);
   };
+
+  ipcMain.on(START_WORKER, (event, instructions) => {
+    auto_trader = new AutoTrader(instructions, () =>
+      event.sender.send(WORKER_STOPPED)
+    );
+    auto_trader.start();
+    event.sender.send(WORKER_STARTED);
+  });
 
   ipcMain.on(STOP_WORKER, stop);
 };
@@ -29,9 +32,11 @@ const timeout = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 class AutoTrader {
   _running = false;
+  numberOfRuns = 0;
 
-  constructor(instructions) {
+  constructor(instructions, onStop) {
     this._instructions = instructions;
+    this._onStop = onStop;
   }
 
   start = () => {
@@ -44,37 +49,55 @@ class AutoTrader {
   };
 
   _start = async ({ instructions }) => {
-    if (!this._running) {
-      logger.info("stopped");
-      return;
+    try {
+      if (
+        !this._running ||
+        (instructions.number_of_runs &&
+          instructions.number_of_runs <= this.numberOfRuns)
+      ) {
+        if (
+          instructions.number_of_runs &&
+          instructions.number_of_runs <= this.numberOfRuns
+        ) {
+          this._onStop();
+        }
+
+        logger.info("stopped");
+        return;
+      }
+
+      logger.info("starting a buy order");
+      const buyOrder = await this._buy_order(instructions);
+
+      logger.info("waiting for buy order to fill");
+      const filledOrder = await this._makeSureWeFillBuyOrder({
+        instructions,
+        buyOrder
+      });
+
+      if (filledOrder.state !== "cancelled") {
+        logger.info("starting sell order");
+        const sellOrder = await this._sell_order({
+          ...instructions,
+          filledOrder
+        });
+
+        logger.info("waiting for sell order to fill");
+        await this._makeSureWeFillSellOrder({
+          sellOrder,
+          instructions,
+          filledOrder
+        });
+      }
+
+      logger.info(`waiting ${instructions.time_interval * 1000} seconds`);
+
+      await timeout(instructions.time_interval * 1000);
+      this.numberOfRuns++;
+      this._start({ instructions });
+    } catch (error) {
+      this._onStop();
     }
-
-    logger.info("starting a buy order");
-    const buyOrder = await this._buy_order(instructions);
-
-    logger.info("waiting for buy order to fill");
-    const filledOrder = await this._makeSureWeFillBuyOrder({
-      instructions,
-      buyOrder
-    });
-
-    logger.info("starting sell order");
-    const sellOrder = await this._sell_order({
-      ...instructions,
-      filledOrder
-    });
-
-    logger.info("waiting for sell order to fill");
-    await this._makeSureWeFillSellOrder({
-      sellOrder,
-      instructions,
-      filledOrder
-    });
-
-    logger.info(`waiting ${instructions.time_interval * 1000} seconds`);
-
-    await timeout(instructions.time_interval * 1000);
-    this._start({ instructions });
   };
 
   _buy_order = async ({
