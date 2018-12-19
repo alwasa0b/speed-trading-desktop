@@ -11,7 +11,7 @@ module.exports = async (
     quantity_type
   }
 ) => {
-  let excutedOrder;
+  let executedOrder;
 
   try {
     let quote;
@@ -53,12 +53,12 @@ module.exports = async (
     );
 
     if (sell_order_type !== "none") {
-      excutedOrder = setInterval(async () => {
+      executedOrder = setInterval(async () => {
         let order = await Robinhood.url(orderPlacedRes.url);
 
         if (order.state === "cancelled") {
           console.log(`id: ${orderPlacedRes.id} cancelled`);
-          clearInterval(excutedOrder);
+          clearInterval(executedOrder);
           return;
         }
 
@@ -68,11 +68,15 @@ module.exports = async (
           sell_price = parseFloat(sell_price).toFixed(2);
 
           if (sell_order_type === "limit") {
+            let over_bid = parseFloat(
+              Number(order.average_price) + Number(sell_price)
+            ).toFixed(2);
+
             console.log("placing sell order...");
-            console.log(`id: ${orderPlacedRes.id}, sell: ${sell_price}`);
+            console.log(`id: ${orderPlacedRes.id}, sell: ${over_bid}`);
             await Robinhood.place_sell_order({
               ...options,
-              bid_price: sell_price
+              bid_price: over_bid
             });
           }
 
