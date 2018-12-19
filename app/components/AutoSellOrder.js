@@ -39,10 +39,11 @@ export default withStyles(styles)(
         </select>
       </div>
       <div className={classes.formControl}>
-        <label className={classes.label}>Sell Price: </label>
+        <label className={classes.label}>
+          {type === "limit" ? "Over avg: " : type === "stop" ? "Stop: " : ""}
+        </label>
         <input
           type={"number"}
-          min={0}
           className={classes.input}
           disabled={type === "none"}
           onChange={({ target }) =>

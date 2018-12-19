@@ -71,7 +71,9 @@ export default withStyles(styles)(
               quantity:
                 quantity_type === "percentage" && Number(target.value) > 100
                   ? 100
-                  : Number(target.value)
+                  : target.value
+                  ? Number(target.value)
+                  : ""
             })
           }
         />

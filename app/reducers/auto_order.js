@@ -24,13 +24,13 @@ export default (
 ) => {
   switch (action.type) {
     case UPDATE_TIME_INTERVAL:
-      return { ...state, time_interval: Number(action.payload) };
+      return { ...state, time_interval: parseNumber(action.payload) };
     case UPDATE_UNDER_BID_PRICE:
-      return { ...state, under_bid_price: Number(action.payload) };
+      return { ...state, under_bid_price: parseNumber(action.payload) };
     case UPDATE_OVER_ASK_PRICE:
-      return { ...state, over_my_price: Number(action.payload) };
+      return { ...state, over_my_price: parseNumber(action.payload) };
     case UPDATE_QUANTITY_AUTO:
-      return { ...state, quantity: Number(action.payload) };
+      return { ...state, quantity: parseNumber(action.payload) };
     case WORKER_STARTED:
       return { ...state, running: true };
     case WORKER_STOPPED:
@@ -42,3 +42,7 @@ export default (
       return state;
   }
 };
+
+function parseNumber(payload) {
+  return payload !== "" ? Number(payload) : "";
+}

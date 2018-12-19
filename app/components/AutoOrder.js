@@ -44,7 +44,6 @@ export default withStyles(styles)(
         <label className={classes.label}>Under Bid </label>
         <input
           type={"number"}
-          min={0}
           value={under_bid_price}
           onChange={({ target }) => update_under_bid_price(target.value)}
           className={classes.input}
@@ -55,7 +54,6 @@ export default withStyles(styles)(
         <label className={classes.label}>Over avg </label>
         <input
           type={"number"}
-          min={0}
           value={over_my_price}
           onChange={({ target }) => update_over_ask_price(target.value)}
           className={classes.input}
@@ -65,7 +63,6 @@ export default withStyles(styles)(
         <label className={classes.label}>Interval </label>
         <input
           type={"number"}
-          min={0}
           value={time_interval}
           onChange={({ target }) => update_time_interval(target.value)}
           className={classes.input}
@@ -76,7 +73,6 @@ export default withStyles(styles)(
         <label className={classes.label}>Qty </label>
         <input
           type={"number"}
-          min={0}
           value={quantity}
           onChange={({ target }) => update_quantity(target.value)}
           className={classes.input}
