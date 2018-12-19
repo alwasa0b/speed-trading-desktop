@@ -173,7 +173,7 @@ ipcMain.on(UPDATE_ORDERS, event => {
   if (update_order_handle != null) clearInterval(update_order_handle);
   update_order_handle = setInterval(
     update_orders(data => event.sender.send(ORDERS_UPDATED, data)),
-    1000
+    5000
   );
 });
 

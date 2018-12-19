@@ -47,7 +47,7 @@ export default withStyles(styles)(
             <div className={classes.cell}>Action</div>
           </div>
           {positions.map((position, i) => (
-            <div className={classes.row} key={i}>
+            <div className={classes.row} key={position.symbol}>
               <div className={classes.cell}>{position.symbol}</div>
               <div className={classes.cell}>
                 <NumberParser value={position.quantity} fix={0} />

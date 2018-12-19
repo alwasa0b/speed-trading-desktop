@@ -39,32 +39,34 @@ export default withStyles(styles)(
           <div className={classes.cell}>Status</div>
           <div className={classes.cell}>Action</div>
         </div>
-        {orders.map((n, i) => {
-          return (
-            <div className={classes.row} key={i}>
-              <div className={classes.cell}>{n.symbol}</div>
-              <div className={classes.cell}>
-                <NumberParser value={n.quantity} fix={0} />
+        {orders
+          .filter(o => o.state !== "cancelled")
+          .map((n, i) => {
+            return (
+              <div className={classes.row} key={n.id}>
+                <div className={classes.cell}>{n.symbol}</div>
+                <div className={classes.cell}>
+                  <NumberParser value={n.quantity} fix={0} />
+                </div>
+                <div className={classes.cell}>
+                  <NumberParser value={n.average_price} />
+                </div>
+                <div className={classes.cell}>
+                  <NumberParser value={n.stop_price} />
+                </div>
+                <div className={classes.cell}>{n.state}</div>
+                <div className={classes.cell}>
+                  <button
+                    className={classes.button}
+                    onClick={() => place_cancel_order({ cancel_order: n })}
+                    disabled={n.state === "cancelled" || n.state === "filled"}
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
-              <div className={classes.cell}>
-                <NumberParser value={n.average_price} />
-              </div>
-              <div className={classes.cell}>
-                <NumberParser value={n.stop_price} />
-              </div>
-              <div className={classes.cell}>{n.state}</div>
-              <div className={classes.cell}>
-                <button
-                  className={classes.button}
-                  onClick={() => place_cancel_order({ cancel_order: n })}
-                  disabled={n.state === "cancelled" || n.state === "filled"}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
       </div>
     </div>
   )
