@@ -39,62 +39,65 @@ class AutoTrader {
     this._onStop = onStop;
   }
 
-  start = () => {
+  start = async () => {
     this._running = true;
-    this._start({ instructions: this._instructions });
+    try {
+      while (this._running) {
+        if (this._instructions.number_of_runs <= this.numberOfRuns) {
+          this._running = false;
+          this._onStop();
+          break;
+        }
+        this._trade({ instructions: this._instructions });
+
+        logger.info(
+          `waiting ${this._instructions.time_interval * 1000} seconds..`
+        );
+
+        await timeout(this._instructions.time_interval * 1000);
+        this.numberOfRuns++;
+      }
+    } catch (error) {
+      this._onStop();
+    }
   };
 
   stop = () => {
     this._running = false;
   };
 
-  _start = async ({ instructions }) => {
+  _trade = async ({ instructions }) => {
     try {
-      if (
-        !this._running ||
-        (instructions.number_of_runs &&
-          instructions.number_of_runs <= this.numberOfRuns)
-      ) {
-        if (
-          instructions.number_of_runs &&
-          instructions.number_of_runs <= this.numberOfRuns
-        ) {
-          this._onStop();
-        }
-
-        logger.info("stopped");
-        return;
-      }
-
-      logger.info("starting a buy order");
+      logger.info("starting a buy order..");
       const buyOrder = await this._buy_order(instructions);
 
-      logger.info("waiting for buy order to fill");
+      logger.info(`waiting for buy order id: ${buyOrder.id} to fill..`);
       const filledOrder = await this._makeSureWeFillBuyOrder({
         instructions,
         buyOrder
       });
 
       if (filledOrder.state !== "cancelled") {
-        logger.info("starting sell order");
+        logger.info(`starting sell order for buy order id: ${buyOrder.id}..`);
         const sellOrder = await this._sell_order({
           ...instructions,
           filledOrder
         });
 
-        logger.info("waiting for sell order to fill");
+        logger.info(
+          `waiting for sell order id: ${sellOrder.id} for buy order id: ${
+            buyOrder.id
+          } to fill..`
+        );
+
         await this._makeSureWeFillSellOrder({
           sellOrder,
           instructions,
           filledOrder
         });
+
+        logger.info(`order sold!`);
       }
-
-      logger.info(`waiting ${instructions.time_interval * 1000} seconds`);
-
-      await timeout(instructions.time_interval * 1000);
-      this.numberOfRuns++;
-      this._start({ instructions });
     } catch (error) {
       this._onStop();
     }
@@ -122,14 +125,14 @@ class AutoTrader {
       instrument: { url: instrument, symbol }
     };
 
-    logger.info(`buy order options ${JSON.stringify(options)}`);
+    logger.info(`buy order options ${JSON.stringify(options)}..`);
 
     const result = await Robinhood.place_buy_order(options);
 
     logger.info(
       `buy order - id: ${result.id}, buy: ${result.price}, quantity: ${
         result.quantity
-      } was placed`
+      } was placed..`
     );
 
     return result;
@@ -153,14 +156,14 @@ class AutoTrader {
       bid_price: sell_price
     };
 
-    logger.info(`sell order options ${JSON.stringify(options)}`);
+    logger.info(`sell order options ${JSON.stringify(options)}..`);
 
     const result = await Robinhood.place_sell_order(options);
 
     logger.info(
       `sell order - id: ${result.id}, buy: ${result.price}, quantity: ${
         result.quantity
-      } was placed`
+      } was placed..`
     );
 
     return result;
@@ -179,7 +182,7 @@ class AutoTrader {
         return order;
       }
 
-      await timeout(1000);
+      await timeout(700);
 
       numberOfTries++;
 
@@ -213,7 +216,7 @@ class AutoTrader {
         });
       }
 
-      await timeout(1000);
+      await timeout(700);
 
       numberOfTries++;
 
