@@ -1,4 +1,6 @@
-module.exports = async (
+import { logger } from "../logger";
+
+export default async (
   Robinhood,
   {
     instrument,
@@ -20,8 +22,7 @@ module.exports = async (
       quantity:
         quantity_type === "percentage"
           ? Math.floor(
-              (total_quantity - shares_held_for_sells) *
-                requested_quantity /
+              ((total_quantity - shares_held_for_sells) * requested_quantity) /
                 100
             )
           : requested_quantity,
@@ -31,10 +32,11 @@ module.exports = async (
       instrument: { url: instrument, symbol }
     };
 
-    console.log("sell options");
-    console.log(options);
+    logger.info(`sell options: ${JSON.stringify(options)}..`);
 
     const orderPlacedRes = await Robinhood.place_sell_order(options);
+
+    logger.info("sell order placed");
 
     return orderPlacedRes;
   } catch (e) {

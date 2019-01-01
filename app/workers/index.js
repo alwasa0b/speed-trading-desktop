@@ -1,6 +1,6 @@
 import { Robinhood } from "../robinhood-service";
-const placeBuyOrder = require("./place-buy-order");
-const placeSellOrder = require("./place-sell-order");
+import placeBuyOrder from "./place-buy-order";
+import placeSellOrder from "./place-sell-order";
 const placeStopLossOrder = require("./place-stop-loss-order");
 export const auto_trader_service = require("./auto-trader");
 const mapLimit = require("promise-map-limit");

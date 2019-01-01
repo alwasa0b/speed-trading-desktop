@@ -70,3 +70,7 @@
 //     expect(actions.incrementAsync.called).toBe(true);
 //   });
 // });
+
+describe("test all components", () => {
+  it("should test something", () => {});
+});

@@ -31,8 +31,9 @@ module.exports = ipcMain => {
 const timeout = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 class AutoTrader {
-  _running = false;
-  numberOfRuns = 0;
+  _activityTrading = false;
+  _numberOfTradeRuns = 0;
+  _activeOrders = 0;
 
   constructor(instructions, onStop) {
     this._instructions = instructions;
@@ -40,35 +41,42 @@ class AutoTrader {
   }
 
   start = async () => {
-    this._running = true;
+    this._activityTrading = true;
     try {
-      while (this._running) {
-        if (this._instructions.number_of_runs <= this.numberOfRuns) {
-          this._running = false;
-          this._onStop();
-          break;
-        }
-        this._trade({ instructions: this._instructions });
+      while (this._activityTrading) {
+        if (this._shouldExecuteNewTrade()) {
+          this._trade({
+            instructions: this._instructions
+          });
 
-        logger.info(
-          `waiting ${this._instructions.time_interval * 1000} seconds..`
-        );
+          this._numberOfTradeRuns++;
+        }
+
+        logger.info(`waiting ${this._instructions.time_interval} seconds..`);
 
         await timeout(this._instructions.time_interval * 1000);
-        this.numberOfRuns++;
       }
+      logger.info("stopped..");
+      this._activityTrading = false;
+      this._onStop();
     } catch (error) {
+      logger.info("stopped..");
+      this._activityTrading = false;
       this._onStop();
     }
   };
 
   stop = () => {
-    this._running = false;
+    logger.info("stopped..");
+    this._activityTrading = false;
   };
 
-  _trade = async ({ instructions }) => {
+  _trade = async ({ instructions, orderNumber }) => {
     try {
       logger.info("starting a buy order..");
+
+      this._activeOrders++;
+
       const buyOrder = await this._buy_order(instructions);
 
       logger.info(`waiting for buy order id: ${buyOrder.id} to fill..`);
@@ -97,8 +105,19 @@ class AutoTrader {
         });
 
         logger.info(`order sold!`);
+
+        this._activeOrders--;
+      }
+
+      if (filledOrder.state === "cancelled") {
+        this._activeOrders--;
+      }
+
+      if (this._activeOrders === 0) {
+        this._activityTrading = false;
       }
     } catch (error) {
+      this._activityTrading = false;
       this._onStop();
     }
   };
@@ -111,7 +130,7 @@ class AutoTrader {
     quantity,
     symbol
   }) => {
-    if (!this._running) return;
+    if (!this._activityTrading) return;
     const quote = await Robinhood.quote_data(symbol);
 
     const bid_price = parseFloat(
@@ -119,7 +138,7 @@ class AutoTrader {
     ).toFixed(2);
 
     const options = {
-      type: "limit",
+      type: this._numberOfTradeRuns === 1 ? "market" : "limit",
       quantity,
       bid_price,
       instrument: { url: instrument, symbol }
@@ -144,7 +163,7 @@ class AutoTrader {
     over_my_price,
     symbol
   }) => {
-    if (!this._running) return;
+    if (!this._activityTrading) return;
     const sell_price = parseFloat(
       Number(filledOrder.average_price) + Number(over_my_price)
     ).toFixed(2);
@@ -171,7 +190,7 @@ class AutoTrader {
 
   _makeSureWeFillBuyOrder = async ({ buyOrder }) => {
     let numberOfTries = 0;
-    while (this._running) {
+    while (this._activityTrading) {
       const order = await Robinhood.url(buyOrder.url);
 
       if (order.state === "filled") {
@@ -198,7 +217,7 @@ class AutoTrader {
     filledOrder
   }) => {
     let numberOfTries = 0;
-    while (this._running) {
+    while (this._activityTrading) {
       const order = await Robinhood.url(sellOrder.url);
 
       if (order.state === "filled") {
@@ -225,4 +244,11 @@ class AutoTrader {
       }
     }
   };
+
+  _shouldExecuteNewTrade() {
+    return (
+      !this._instructions.number_of_runs ||
+      this._instructions.number_of_runs > this._numberOfTradeRuns
+    );
+  }
 }

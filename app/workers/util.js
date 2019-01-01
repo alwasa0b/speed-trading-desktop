@@ -14,7 +14,7 @@ const retryPromise = fn => {
   return attempt;
 };
 
-module.exports = ({ username, password }) => {
+export default ({ username, password }) => {
   return new Promise(resolve => {
     const Robinhood = require("robinhood")(
       {
@@ -44,3 +44,5 @@ const promisfy = origFn => (...callArgs) => {
     ]);
   });
 };
+
+export const timeout = ms => new Promise(resolve => setTimeout(resolve, ms));

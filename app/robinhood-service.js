@@ -1,4 +1,4 @@
-const init = require("./workers/util");
+import init from "./workers/util";
 
 export let Robinhood;
 
