@@ -1,6 +1,16 @@
 import placeBuy from "../../app/workers/place-buy-order";
 jest.mock("../../app/workers/util", () => ({ timeout: jest.fn() }));
+jest.mock("../../app/logger", () => ({ logger: { info: jest.fn() } }));
+jest.mock("../../app/robinhood-service", () => ({
+  Robinhood: {
+    place_buy_order: jest.fn(() => Promise.resolve({ url: "test.order.url" })),
+    url: jest.fn(() => Promise.resolve({ state: "filled" })),
+    place_sell_order: jest.fn(() => Promise.resolve({ url: "test.order.url" })),
+    quote_data: jest.fn()
+  }
+}));
 const { timeout } = require("../../app/workers/util");
+const { Robinhood } = require("../../app/robinhood-service");
 
 beforeEach(() => {
   jest.resetModules();
@@ -8,28 +18,12 @@ beforeEach(() => {
 
 describe("test placing buy order", () => {
   it("should call place_buy_order once", async () => {
-    const quote_data = jest.fn();
-    const place_buy_order = jest.fn();
-    const Robinhood = jest.fn(() => ({
-      quote_data,
-      place_buy_order,
-      constructor: { name: "Mocked" }
-    }));
-
-    await placeBuy(new Robinhood(), {});
-    expect(place_buy_order).toHaveBeenCalledTimes(1);
+    await placeBuy({});
+    expect(Robinhood.place_buy_order).toHaveBeenCalledTimes(1);
   });
 
   it("should call place_buy_order with 'limit' order type", async () => {
-    const quote_data = jest.fn();
-    const place_buy_order = jest.fn();
-    const Robinhood = jest.fn(() => ({
-      quote_data,
-      place_buy_order,
-      constructor: { name: "Mocked" }
-    }));
-
-    await placeBuy(new Robinhood(), {});
+    await placeBuy({});
 
     let options = {
       type: "limit",
@@ -38,24 +32,17 @@ describe("test placing buy order", () => {
       instrument: { url: undefined, symbol: undefined }
     };
 
-    expect(place_buy_order).toBeCalledWith(options);
+    expect(Robinhood.place_buy_order).toBeCalledWith(options);
   });
 
   it("should call place_buy_order with passed 'buy_price'", async () => {
-    const quote_data = jest.fn();
-    const place_buy_order = jest.fn();
-    const Robinhood = jest.fn(() => ({
-      quote_data,
-      place_buy_order,
-      constructor: { name: "Mocked" }
-    }));
     let options = {
       buy_price: 12
     };
 
-    await placeBuy(new Robinhood(), options);
+    await placeBuy(options);
 
-    expect(place_buy_order).toBeCalledWith({
+    expect(Robinhood.place_buy_order).toBeCalledWith({
       type: "limit",
       quantity: undefined,
       bid_price: parseFloat(12).toFixed(2),
@@ -64,20 +51,13 @@ describe("test placing buy order", () => {
   });
 
   it("should call place_buy_order with passed 'quantity'", async () => {
-    const quote_data = jest.fn();
-    const place_buy_order = jest.fn();
-    const Robinhood = jest.fn(() => ({
-      quote_data,
-      place_buy_order,
-      constructor: { name: "Mocked" }
-    }));
     let options = {
       quantity: 1
     };
 
-    await placeBuy(new Robinhood(), options);
+    await placeBuy(options);
 
-    expect(place_buy_order).toBeCalledWith({
+    expect(Robinhood.place_buy_order).toBeCalledWith({
       type: "limit",
       quantity: 1,
       bid_price: "NaN",
@@ -86,20 +66,13 @@ describe("test placing buy order", () => {
   });
 
   it("should call place_buy_order with passed 'symbol'", async () => {
-    const quote_data = jest.fn();
-    const place_buy_order = jest.fn();
-    const Robinhood = jest.fn(() => ({
-      quote_data,
-      place_buy_order,
-      constructor: { name: "Mocked" }
-    }));
     let options = {
       symbol: "test"
     };
 
-    await placeBuy(new Robinhood(), options);
+    await placeBuy(options);
 
-    expect(place_buy_order).toBeCalledWith({
+    expect(Robinhood.place_buy_order).toBeCalledWith({
       type: "limit",
       quantity: undefined,
       bid_price: "NaN",
@@ -108,20 +81,13 @@ describe("test placing buy order", () => {
   });
 
   it("should call place_buy_order with passed 'instrument'", async () => {
-    const quote_data = jest.fn();
-    const place_buy_order = jest.fn();
-    const Robinhood = jest.fn(() => ({
-      quote_data,
-      place_buy_order,
-      constructor: { name: "Mocked" }
-    }));
     let options = {
       instrument: "test"
     };
 
-    await placeBuy(new Robinhood(), options);
+    await placeBuy(options);
 
-    expect(place_buy_order).toBeCalledWith({
+    expect(Robinhood.place_buy_order).toBeCalledWith({
       type: "limit",
       quantity: undefined,
       bid_price: "NaN",
@@ -129,109 +95,56 @@ describe("test placing buy order", () => {
     });
   });
 
-  it("should call place_sell_order when 'sell_order_type' is 'limit' and order has been filled", async () => {
-    const quote_data = jest.fn();
-    const place_buy_order = jest.fn(() =>
-      Promise.resolve({ url: "test.order.url" })
-    );
-    const place_sell_order = jest.fn();
-    const url = jest.fn(() => Promise.resolve({ state: "filled" }));
-    const Robinhood = jest.fn(() => ({
-      quote_data,
-      place_buy_order,
-      constructor: { name: "Mocked" },
-      place_sell_order,
-      url
-    }));
+  it("should not call place_sell_order if order has been canceled", async () => {
+    Robinhood.url = jest.fn(() => Promise.resolve({ state: "cancelled" }));
 
     let options = {
       sell_order_type: "limit"
     };
 
-    await placeBuy(new Robinhood(), options);
+    await placeBuy(options);
 
-    expect(place_sell_order).toHaveBeenCalledTimes(1);
+    expect(Robinhood.place_sell_order).toHaveBeenCalledTimes(0);
   });
 
-  it("should not call place_sell_order if order has been canceled", async () => {
-    const quote_data = jest.fn();
-    const place_buy_order = jest.fn(() =>
-      Promise.resolve({ url: "test.order.url" })
-    );
-    const place_sell_order = jest.fn();
-    const url = jest.fn(() => Promise.resolve({ state: "cancelled" }));
-    const Robinhood = jest.fn(() => ({
-      quote_data,
-      place_buy_order,
-      constructor: { name: "Mocked" },
-      place_sell_order,
-      url
-    }));
+  it("should call place_sell_order when 'sell_order_type' is 'limit' and order has been filled", async () => {
+    Robinhood.url = jest.fn(() => Promise.resolve({ state: "filled" }));
 
     let options = {
       sell_order_type: "limit"
     };
 
-    await placeBuy(new Robinhood(), options);
+    await placeBuy(options);
 
-    expect(place_sell_order).toHaveBeenCalledTimes(0);
+    expect(Robinhood.place_sell_order).toHaveBeenCalledTimes(1);
   });
 
   it("should call timeout if order is still unconfirmed", async () => {
-    const quote_data = jest.fn();
-    const place_buy_order = jest.fn(() =>
-      Promise.resolve({ url: "test.order.url" })
-    );
-    const place_sell_order = jest.fn();
-    const url = jest
+    Robinhood.url = jest
       .fn()
       .mockReturnValueOnce(Promise.resolve({ state: "unconfirmed" }))
       .mockReturnValueOnce(Promise.resolve({ state: "unconfirmed" }))
       .mockReturnValueOnce(Promise.resolve({ state: "unconfirmed" }))
       .mockReturnValueOnce(Promise.resolve({ state: "cancelled" }));
 
-    const Robinhood = jest.fn(() => ({
-      quote_data,
-      place_buy_order,
-      constructor: { name: "Mocked" },
-      place_sell_order,
-      url
-    }));
-
     let options = {
       sell_order_type: "limit"
     };
 
-    await placeBuy(new Robinhood(), options);
+    await placeBuy(options);
 
     expect(timeout).toHaveBeenCalledTimes(3);
   });
 
   it("should call quote_data once when buy_order_type is 'bid'", async () => {
-    const quote_data = jest.fn();
-    const place_buy_order = jest.fn();
-    const Robinhood = jest.fn(() => ({
-      quote_data,
-      place_buy_order,
-      constructor: { name: "Mocked" }
-    }));
+    await placeBuy({ buy_order_type: "bid" });
 
-    await placeBuy(new Robinhood(), { buy_order_type: "bid" });
-
-    expect(quote_data).toHaveBeenCalledTimes(1);
+    expect(Robinhood.quote_data).toHaveBeenCalledTimes(1);
   });
 
   it("should call quote_data with 'symbol' when buy_order_type is 'bid'", async () => {
-    const quote_data = jest.fn();
-    const place_buy_order = jest.fn();
-    const Robinhood = jest.fn(() => ({
-      quote_data,
-      place_buy_order,
-      constructor: { name: "Mocked" }
-    }));
+    await placeBuy({ buy_order_type: "bid", symbol: "test" });
 
-    await placeBuy(new Robinhood(), { buy_order_type: "bid", symbol: "test" });
-
-    expect(quote_data).toHaveBeenCalledWith("test");
+    expect(Robinhood.quote_data).toHaveBeenCalledWith("test");
   });
 });
