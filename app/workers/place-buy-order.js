@@ -1,19 +1,17 @@
 import { timeout } from "./util";
 import { logger } from "../logger";
+import { Robinhood } from "../robinhood-service";
 
-export default async (
-  Robinhood,
-  {
-    instrument,
-    quantity,
-    buy_price,
-    symbol,
-    buy_order_type,
-    sell_order_type,
-    sell_price,
-    quantity_type
-  }
-) => {
+export default async ({
+  instrument,
+  quantity,
+  buy_price,
+  symbol,
+  buy_order_type,
+  sell_order_type,
+  sell_price,
+  quantity_type
+}) => {
   try {
     let quote;
     const bid_type = buy_order_type === "bid";

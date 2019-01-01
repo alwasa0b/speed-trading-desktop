@@ -8,7 +8,7 @@ import {
 import { logger } from "../logger";
 import { Robinhood } from "../robinhood-service";
 
-module.exports = ipcMain => {
+export default ipcMain => {
   let auto_trader = null;
 
   const stop = event => {

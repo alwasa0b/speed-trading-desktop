@@ -39,6 +39,7 @@ import {
   PLACE_STOP_REQUEST,
   PLACE_STOP_REQUEST_SUCCESS
 } from "./constants/stop";
+
 import { logout, login } from "./robinhood-service";
 
 let mainWindow = null;

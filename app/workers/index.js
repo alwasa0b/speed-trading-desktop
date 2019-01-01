@@ -1,27 +1,16 @@
 import { Robinhood } from "../robinhood-service";
-import placeBuyOrder from "./place-buy-order";
-import placeSellOrder from "./place-sell-order";
-const placeStopLossOrder = require("./place-stop-loss-order");
-export const auto_trader_service = require("./auto-trader");
-const mapLimit = require("promise-map-limit");
+import mapLimit from "promise-map-limit";
+import { logger } from "../logger";
+export { default as place_sell_order } from "./place-sell-order";
+export { default as place_buy_order } from "./place-buy-order";
+export { default as place_stop_loss_order } from "./place-stop-loss-order";
+export { default as auto_trader_service } from "./auto-trader";
 
 export const place_cancel_order = async order => {
-  const placedOrder = await Robinhood.cancel_order(order);
-  return placedOrder;
-};
-
-export const place_stop_loss_order = async order => {
-  const placedOrder = await placeStopLossOrder(Robinhood, order);
-  return placedOrder;
-};
-
-export const place_buy_order = async order => {
-  const placedOrder = await placeBuyOrder(Robinhood, order);
-  return placedOrder;
-};
-
-export const place_sell_order = async order => {
-  const placedOrder = await placeSellOrder(Robinhood, order);
+  const placedOrder = await Robinhood.cancel_order(order.price);
+  logger.info(
+    `cancel order placed for ticker ${order.symbol} and price ${order.price}..`
+  );
   return placedOrder;
 };
 

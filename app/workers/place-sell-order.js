@@ -1,18 +1,16 @@
 import { logger } from "../logger";
+import { Robinhood } from "../robinhood-service";
 
-export default async (
-  Robinhood,
-  {
-    instrument,
-    order_type,
-    price,
-    requested_quantity,
-    quantity_type,
-    total_quantity,
-    symbol,
-    shares_held_for_sells
-  }
-) => {
+export default async ({
+  instrument,
+  order_type,
+  price,
+  requested_quantity,
+  quantity_type,
+  total_quantity,
+  symbol,
+  shares_held_for_sells
+}) => {
   try {
     let quote;
     if (order_type === "bid") quote = await Robinhood.quote_data(symbol);

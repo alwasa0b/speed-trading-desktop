@@ -1,4 +1,7 @@
-module.exports = async (Robinhood, { instrument, quantity, price, symbol }) => {
+import { logger } from "../logger";
+import { Robinhood } from "../robinhood-service";
+
+export default async ({ instrument, quantity, price, symbol }) => {
   try {
     const options = {
       instrument: { url: instrument, symbol },
@@ -9,6 +12,8 @@ module.exports = async (Robinhood, { instrument, quantity, price, symbol }) => {
     };
 
     const orderPlacedRes = await Robinhood.place_sell_order(options);
+
+    logger.info("stop loss order placed");
 
     return orderPlacedRes;
   } catch (e) {
