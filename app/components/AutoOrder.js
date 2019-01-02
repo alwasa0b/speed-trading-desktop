@@ -33,12 +33,14 @@ export default withStyles(styles)(
     over_my_price,
     quantity,
     number_of_runs,
+    number_of_open_orders,
     running,
     update_under_bid_price,
     update_over_ask_price,
     update_time_interval,
     update_quantity,
     update_number_of_runs,
+    update_number_of_open_orders,
     startStopWorker
   }) => (
     <div className={classes.root} autoComplete="off">
@@ -87,6 +89,16 @@ export default withStyles(styles)(
           type={"number"}
           value={number_of_runs}
           onChange={({ target }) => update_number_of_runs(target.value)}
+          className={classes.input}
+        />
+      </div>
+
+      <div className={classes.formControl}>
+        <label className={classes.label}># Open Orders </label>
+        <input
+          type={"number"}
+          value={number_of_open_orders}
+          onChange={({ target }) => update_number_of_open_orders(target.value)}
           className={classes.input}
         />
       </div>

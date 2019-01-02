@@ -3,7 +3,8 @@ import {
   UPDATE_UNDER_BID_PRICE,
   UPDATE_OVER_ASK_PRICE,
   UPDATE_QUANTITY_AUTO,
-  NUMBER_OF_RUNS
+  NUMBER_OF_RUNS,
+  UPDATE_NUMBER_OF_OPEN_ORDERS
 } from "../constants/auto";
 
 import {
@@ -19,11 +20,15 @@ export default (
     over_my_price: 0.15,
     quantity: 10,
     running: false,
-    messages: []
+    messages: [],
+    number_of_open_orders: 3,
+    number_of_runs: 500
   },
   action
 ) => {
   switch (action.type) {
+    case UPDATE_NUMBER_OF_OPEN_ORDERS:
+      return { ...state, number_of_open_orders: parseNumber(action.payload) };
     case NUMBER_OF_RUNS:
       return { ...state, number_of_runs: parseNumber(action.payload) };
     case UPDATE_TIME_INTERVAL:

@@ -3,7 +3,8 @@ import {
   UPDATE_UNDER_BID_PRICE,
   UPDATE_OVER_ASK_PRICE,
   UPDATE_QUANTITY_AUTO,
-  NUMBER_OF_RUNS
+  NUMBER_OF_RUNS,
+  UPDATE_NUMBER_OF_OPEN_ORDERS
 } from "../constants/auto";
 import {
   START_WORKER,
@@ -16,6 +17,11 @@ const { ipcRenderer } = require("electron");
 
 export const update_number_of_runs = payload => ({
   type: NUMBER_OF_RUNS,
+  payload
+});
+
+export const update_number_of_open_orders = payload => ({
+  type: UPDATE_NUMBER_OF_OPEN_ORDERS,
   payload
 });
 

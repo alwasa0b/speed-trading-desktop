@@ -34,6 +34,7 @@ class AutoTrader {
   _activityTrading = false;
   _numberOfTradeRuns = 0;
   _activeOrders = 0;
+  _openOrders = [];
 
   constructor(instructions, onStop) {
     this._instructions = instructions;
@@ -77,7 +78,15 @@ class AutoTrader {
 
       this._activeOrders++;
 
+      if (this._openOrders.length >= instructions.number_of_open_orders) {
+        const oldestOrder = this._openOrders.shift();
+        logger.info(`old buy order id: ${oldestOrder.id} is being canceled..`);
+        Robinhood.cancel_order(oldestOrder);
+      }
+
       const buyOrder = await this._buy_order(instructions);
+
+      this._openOrders.push(buyOrder);
 
       logger.info(`waiting for buy order id: ${buyOrder.id} to fill..`);
       const filledOrder = await this._makeSureWeFillBuyOrder({
@@ -106,10 +115,17 @@ class AutoTrader {
 
         logger.info(`order sold!`);
 
+        this._openOrders = this._openOrders.filter(
+          o => o.id !== filledOrder.id
+        );
+
         this._activeOrders--;
       }
 
       if (filledOrder.state === "cancelled") {
+        this._openOrders = this._openOrders.filter(
+          o => o.id !== filledOrder.id
+        );
         this._activeOrders--;
       }
 
@@ -138,7 +154,7 @@ class AutoTrader {
     ).toFixed(2);
 
     const options = {
-      type: this._numberOfTradeRuns === 1 ? "market" : "limit",
+      type: "limit",
       quantity,
       bid_price,
       instrument: { url: instrument, symbol }
