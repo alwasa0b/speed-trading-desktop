@@ -208,6 +208,7 @@
     "retriable-promise": "^1.0.0",
     "robinhood": "^1.1.2",
     "source-map-support": "^0.5.3",
+    "uuid": "^3.3.2",
     "yahoo-stocks": "^2.0.1"
   },
   "devEngines": {

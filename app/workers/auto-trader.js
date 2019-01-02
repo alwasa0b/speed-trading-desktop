@@ -7,6 +7,7 @@ import {
 
 import { logger } from "../logger";
 import { Robinhood } from "../robinhood-service";
+const uuidv4 = require("uuid/v4");
 
 export default ipcMain => {
   let auto_trader = null;
@@ -18,9 +19,10 @@ export default ipcMain => {
   };
 
   ipcMain.on(START_WORKER, (event, instructions) => {
-    auto_trader = new AutoTrader(instructions, () =>
-      event.sender.send(WORKER_STOPPED)
-    );
+    auto_trader = new AutoTrader(instructions, ownId => {
+      if (auto_trader.id !== ownId) return;
+      event.sender.send(WORKER_STOPPED);
+    });
     auto_trader.start();
     event.sender.send(WORKER_STARTED);
   });
@@ -35,6 +37,7 @@ class AutoTrader {
   _numberOfTradeRuns = 0;
   _activeOrders = 0;
   _openOrders = [];
+  id = uuidv4();
 
   constructor(instructions, onStop) {
     this._instructions = instructions;
@@ -58,12 +61,10 @@ class AutoTrader {
         await timeout(this._instructions.time_interval * 1000);
       }
       logger.info("stopped..");
-      this._activityTrading = false;
-      this._onStop();
+      this._onStop(this.id);
     } catch (error) {
       logger.info("stopped..");
-      this._activityTrading = false;
-      this._onStop();
+      this._onStop(this.id);
     }
   };
 
@@ -129,12 +130,12 @@ class AutoTrader {
         this._activeOrders--;
       }
 
-      if (this._activeOrders === 0) {
+      if (this._activeOrders === 0 && !this._shouldExecuteNewTrade()) {
         this._activityTrading = false;
       }
     } catch (error) {
       this._activityTrading = false;
-      this._onStop();
+      this._onStop(this.id);
     }
   };
 
@@ -154,7 +155,7 @@ class AutoTrader {
     ).toFixed(2);
 
     const options = {
-      type: "limit",
+      type: this._numberOfTradeRuns === 1 ? "market" : "limit",
       quantity,
       bid_price,
       instrument: { url: instrument, symbol }
