@@ -9,8 +9,11 @@ jest.mock("../../app/robinhood-service", () => ({
     quote_data: jest.fn()
   }
 }));
-const { timeout } = require("../../app/workers/util");
+
+jest.mock("../../app/workers/handle-buy-order");
+
 const { Robinhood } = require("../../app/robinhood-service");
+const handleBuyOrder = require("../../app/workers/handle-buy-order");
 
 beforeEach(() => {
   jest.resetModules();
@@ -107,33 +110,15 @@ describe("test placing buy order", () => {
     expect(Robinhood.place_sell_order).toHaveBeenCalledTimes(0);
   });
 
-  it("should call place_sell_order when 'sell_order_type' is 'limit' and order has been filled", async () => {
-    Robinhood.url = jest.fn(() => Promise.resolve({ state: "filled" }));
-
+  it("should call handleBuyOrder after order is placed", async () => {
+    handleBuyOrder.mockClear();
     let options = {
       sell_order_type: "limit"
     };
 
     await placeBuy(options);
 
-    expect(Robinhood.place_sell_order).toHaveBeenCalledTimes(1);
-  });
-
-  it("should call timeout if order is still unconfirmed", async () => {
-    Robinhood.url = jest
-      .fn()
-      .mockReturnValueOnce(Promise.resolve({ state: "unconfirmed" }))
-      .mockReturnValueOnce(Promise.resolve({ state: "unconfirmed" }))
-      .mockReturnValueOnce(Promise.resolve({ state: "unconfirmed" }))
-      .mockReturnValueOnce(Promise.resolve({ state: "cancelled" }));
-
-    let options = {
-      sell_order_type: "limit"
-    };
-
-    await placeBuy(options);
-
-    expect(timeout).toHaveBeenCalledTimes(3);
+    expect(handleBuyOrder).toHaveBeenCalledTimes(1);
   });
 
   it("should call quote_data once when buy_order_type is 'bid'", async () => {

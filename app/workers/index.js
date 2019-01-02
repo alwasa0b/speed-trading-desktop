@@ -7,7 +7,7 @@ export { default as place_stop_loss_order } from "./place-stop-loss-order";
 export { default as auto_trader_service } from "./auto-trader";
 
 export const place_cancel_order = async order => {
-  const placedOrder = await Robinhood.cancel_order(order.price);
+  const placedOrder = await Robinhood.cancel_order(order);
   logger.info(
     `cancel order placed for ticker ${order.symbol} and price ${order.price}..`
   );
