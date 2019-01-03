@@ -57,6 +57,6 @@ export default async function({
     }
 
     logger.info("waiting for order to fill...");
-    await timeout(600);
+    await timeout(1000);
   }
 }
