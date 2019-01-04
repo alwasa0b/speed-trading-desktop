@@ -34,6 +34,7 @@ export default withStyles(styles)(
     quantity,
     number_of_runs,
     number_of_open_orders,
+    pause_price,
     running,
     update_under_bid_price,
     update_over_ask_price,
@@ -41,6 +42,7 @@ export default withStyles(styles)(
     update_quantity,
     update_number_of_runs,
     update_number_of_open_orders,
+    update_pause_price,
     startStopWorker
   }) => (
     <div className={classes.root} autoComplete="off">
@@ -99,6 +101,16 @@ export default withStyles(styles)(
           type={"number"}
           value={number_of_open_orders}
           onChange={({ target }) => update_number_of_open_orders(target.value)}
+          className={classes.input}
+        />
+      </div>
+
+      <div className={classes.formControl}>
+        <label className={classes.label}>Pause Price</label>
+        <input
+          type={"number"}
+          value={pause_price}
+          onChange={({ target }) => update_pause_price(target.value)}
           className={classes.input}
         />
       </div>

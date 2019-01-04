@@ -40,7 +40,7 @@ export default withStyles(styles)(
           <div className={classes.cell}>Action</div>
         </div>
         {orders
-          .filter(o => o.state !== "cancelled")
+          .filter(o => o.state !== "cancelled" && o.state !== "filled")
           .map((n, i) => {
             return (
               <div className={classes.row} key={n.id}>
@@ -49,7 +49,7 @@ export default withStyles(styles)(
                   <NumberParser value={n.quantity} fix={0} />
                 </div>
                 <div className={classes.cell}>
-                  <NumberParser value={n.average_price} />
+                  <NumberParser value={n.price || n.average_price} />
                 </div>
                 <div className={classes.cell}>
                   <NumberParser value={n.stop_price} />

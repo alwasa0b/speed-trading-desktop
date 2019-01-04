@@ -4,7 +4,8 @@ import {
   UPDATE_OVER_ASK_PRICE,
   UPDATE_QUANTITY_AUTO,
   NUMBER_OF_RUNS,
-  UPDATE_NUMBER_OF_OPEN_ORDERS
+  UPDATE_NUMBER_OF_OPEN_ORDERS,
+  UPDATE_PAUSE_PRICE
 } from "../constants/auto";
 
 import {
@@ -27,6 +28,8 @@ export default (
   action
 ) => {
   switch (action.type) {
+    case UPDATE_PAUSE_PRICE:
+      return { ...state, pause_price: parseNumber(action.payload) };
     case UPDATE_NUMBER_OF_OPEN_ORDERS:
       return { ...state, number_of_open_orders: parseNumber(action.payload) };
     case NUMBER_OF_RUNS:
