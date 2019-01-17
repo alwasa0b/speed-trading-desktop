@@ -37,6 +37,7 @@ export default withStyles(styles)(
           <div className={classes.cell}>Price</div>
           <div className={classes.cell}>Stop Price</div>
           <div className={classes.cell}>Status</div>
+          <div className={classes.cell}>Side</div>
           <div className={classes.cell}>Action</div>
         </div>
         {orders
@@ -54,7 +55,12 @@ export default withStyles(styles)(
                 <div className={classes.cell}>
                   <NumberParser value={n.stop_price} />
                 </div>
-                <div className={classes.cell}>{n.state}</div>
+                <div className={classes.cell}>
+                  {(n.state || "").toUpperCase()}
+                </div>
+                <div className={classes.cell}>
+                  {(n.side || "").toUpperCase()}
+                </div>
                 <div className={classes.cell}>
                   <button
                     className={classes.button}

@@ -6,7 +6,6 @@ import {
   place_stop_loss_order,
   place_buy_order,
   place_sell_order,
-  update_price,
   update_positions,
   update_orders,
   auto_trader_service
@@ -18,7 +17,8 @@ import {
   UPDATE_PRICE,
   PRICE_UPDATED,
   POSITIONS_UPDATED,
-  ORDERS_UPDATED
+  ORDERS_UPDATED,
+  ADD_SYMBOL
 } from "./constants/messages";
 
 import { LOGIN_REQUEST, LOGIN_SUCCESS } from "./constants/login";
@@ -41,6 +41,9 @@ import {
 } from "./constants/stop";
 
 import { logout, login } from "./robinhood-service";
+import { EventEmitter } from "events";
+import ticker_manager from "./workers/ticker_manager";
+const emitter = new EventEmitter();
 
 let mainWindow = null;
 
@@ -100,7 +103,7 @@ app.on("ready", async () => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    width: 500,
+    width: process.env.NODE_ENV === "development" ? 1600 : 500,
     height: 900,
     resizable: false
   });
@@ -154,12 +157,18 @@ ipcMain.on(PLACE_STOP_REQUEST, async (event, order) => {
   event.sender.send(PLACE_STOP_REQUEST_SUCCESS, placedOrder);
 });
 
+let oldSymbol = "";
+let update;
+
 ipcMain.on(UPDATE_PRICE, async (event, { symbol }) => {
-  if (update_price_handle != null) clearInterval(update_price_handle);
-  update_price_handle = setInterval(
-    update_price(data => event.sender.send(PRICE_UPDATED, data), symbol),
-    600
-  );
+  if (update == null)
+    update = data => {
+      event.sender.send(PRICE_UPDATED, data);
+    };
+  emitter.removeListener(`PRICE_UPDATED_${oldSymbol}`, update);
+  oldSymbol = symbol;
+  emitter.on(`PRICE_UPDATED_${symbol}`, update);
+  emitter.emit(ADD_SYMBOL, symbol);
 });
 
 ipcMain.on(UPDATE_POSITIONS, event => {
@@ -178,4 +187,5 @@ ipcMain.on(UPDATE_ORDERS, event => {
   );
 });
 
-auto_trader_service(ipcMain);
+auto_trader_service(ipcMain, emitter);
+ticker_manager(emitter, ipcMain);

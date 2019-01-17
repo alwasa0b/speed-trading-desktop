@@ -1,17 +1,28 @@
-const retryPromise = fn => {
-  let count = 10;
-  const attempt = async (...callArgs) => {
-    try {
-      return await fn(...callArgs);
-    } catch (e) {
-      console.log("reattempting ", callArgs);
-      if (count === 10) return { error: true };
-      count -= 1;
-      return await fn(...callArgs);
-    }
-  };
+import { logger } from "../logger";
+import promiseRetry from "promise-retry";
 
-  return attempt;
+const promisfy = (origFn, key) => (...callArgs) => {
+  return promiseRetry({ retries: 5 }, (retry, number) => {
+    if (number > 1)
+      logger.error(`reattempting ${key} ${JSON.stringify(callArgs)}`);
+
+    return new Promise((resolve, reject) => {
+      origFn.apply(null, [
+        ...callArgs,
+        (error, response, body) => {
+          return error || !body || response.statusCode > 399
+            ? reject(error || { message: body.detail })
+            : resolve(body);
+        }
+      ]);
+    }).catch(err => {
+      if (err.code === "ETIMEDOUT" || err.code === "ENOTFOUND") {
+        retry(err);
+      }
+
+      throw err;
+    });
+  });
 };
 
 export default ({ username, password }) => {
@@ -22,26 +33,13 @@ export default ({ username, password }) => {
         password
       },
       () => {
-        // promisfy all functions
         Object.keys(Robinhood).forEach(key => {
-          // console.log('key', key);
           const origFn = Robinhood[key];
-          Robinhood[key] = promisfy(origFn);
+          Robinhood[key] = promisfy(origFn, key);
         });
         resolve(Robinhood);
       }
     );
-  });
-};
-
-const promisfy = origFn => (...callArgs) => {
-  return new Promise((resolve, reject) => {
-    origFn.apply(null, [
-      ...callArgs,
-      (error, response, body) => {
-        return error || !body ? reject(error) : resolve(body);
-      }
-    ]);
   });
 };
 

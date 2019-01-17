@@ -11,7 +11,13 @@ import {
   START_WORKER,
   WORKER_STARTED,
   STOP_WORKER,
-  WORKER_STOPPED
+  WORKER_STOPPED,
+  PAUSE_WORKER,
+  UPDATE_WORKER,
+  WORKER_UPDATED,
+  WORKER_PAUSED,
+  WORKER_RESUMED,
+  RESUME_WORKER
 } from "../constants/messages";
 
 const { ipcRenderer } = require("electron");
@@ -59,7 +65,7 @@ export const startStopWorker = () => (dispatch, getState) => {
 
 const start_worker = async (dispatch, getState, ipc = ipcRenderer) => {
   const { auto_order, messages } = getState();
-  const { instrument, symbol } = messages.price;
+  const { instrument, symbol, price, high } = messages.price;
 
   ipc.once(WORKER_STARTED, async event => {
     dispatch({ type: WORKER_STARTED });
@@ -71,8 +77,11 @@ const start_worker = async (dispatch, getState, ipc = ipcRenderer) => {
 
   await ipc.send(START_WORKER, {
     ...auto_order,
+    messages: [],
     instrument,
-    symbol
+    symbol,
+    price,
+    high
   });
 };
 
@@ -81,6 +90,45 @@ const stop_worker = async (dispatch, getState, ipc = ipcRenderer) => {
   const { instrument, symbol } = messages.price;
 
   await ipc.send(STOP_WORKER, {
+    ...auto_order,
+    instrument,
+    symbol
+  });
+};
+
+export const pause_resume_worker = () => (dispatch, getState) => {
+  const { auto_order } = getState();
+  if (auto_order.paused) resume_worker(dispatch, getState);
+  else pause_worker(dispatch, getState);
+};
+
+const resume_worker = async (dispatch, getState, ipc = ipcRenderer) => {
+  await ipc.send(RESUME_WORKER);
+};
+
+const pause_worker = async (dispatch, getState, ipc = ipcRenderer) => {
+  ipc.once(WORKER_PAUSED, async event => {
+    dispatch({ type: WORKER_PAUSED });
+  });
+  ipc.once(WORKER_RESUMED, async event => {
+    dispatch({ type: WORKER_RESUMED });
+  });
+  await ipc.send(PAUSE_WORKER);
+};
+
+export const update_worker = () => async (
+  dispatch,
+  getState,
+  ipc = ipcRenderer
+) => {
+  const { auto_order, messages } = getState();
+  const { instrument, symbol } = messages.price;
+
+  ipc.once(WORKER_UPDATED, async event => {
+    dispatch({ type: WORKER_UPDATED });
+  });
+
+  await ipc.send(UPDATE_WORKER, {
     ...auto_order,
     instrument,
     symbol

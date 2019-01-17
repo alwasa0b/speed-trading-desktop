@@ -15,6 +15,12 @@ const styles = theme => ({
     margin: theme.spacing.unit,
     minWidth: 60
   },
+  error: {
+    color: "red"
+  },
+  info: {
+    color: "black"
+  },
   input: {
     width: 60
   },
@@ -31,7 +37,12 @@ export default withStyles(styles)(({ classes, messages }) => {
     <div className={classes.root}>
       <div className={classes.formControl}>
         {messages.map((m, i) => (
-          <div key={i}>{m}</div>
+          <div
+            className={m.type === "ERROR" ? classes.error : classes.info}
+            key={i}
+          >
+            {m.message}
+          </div>
         ))}
       </div>
     </div>

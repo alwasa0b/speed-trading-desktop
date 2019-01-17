@@ -52,6 +52,6 @@ export default async ({
 
     return order;
   } catch (e) {
-    return { detail: e.toString() };
+    return { detail: e.message };
   }
 };

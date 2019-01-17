@@ -11,7 +11,10 @@ import {
 import {
   WORKER_STARTED,
   WORKER_STOPPED,
-  PROGRESS_UPDATE
+  PROGRESS_UPDATE,
+  TICKER_UPDATED,
+  WORKER_PAUSED,
+  WORKER_RESUMED
 } from "../constants/messages";
 
 export default (
@@ -23,11 +26,16 @@ export default (
     running: false,
     messages: [],
     number_of_open_orders: 3,
-    number_of_runs: 500
+    number_of_runs: 500,
+    pause_price: 0,
+    ticker: "",
+    paused: false
   },
   action
 ) => {
   switch (action.type) {
+    case TICKER_UPDATED:
+      return { ...state, ticker: action.payload };
     case UPDATE_PAUSE_PRICE:
       return { ...state, pause_price: parseNumber(action.payload) };
     case UPDATE_NUMBER_OF_OPEN_ORDERS:
@@ -46,8 +54,12 @@ export default (
       return { ...state, running: true };
     case WORKER_STOPPED:
       return { ...state, running: false };
+    case WORKER_PAUSED:
+      return { ...state, paused: true };
+    case WORKER_RESUMED:
+      return { ...state, paused: false };
     case PROGRESS_UPDATE:
-      let messages = [...state.messages, action.payload.message];
+      let messages = [...state.messages, action.payload];
       return { ...state, messages };
     default:
       return state;

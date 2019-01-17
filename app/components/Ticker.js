@@ -22,6 +22,11 @@ const styles = theme => ({
   },
   input: {
     width: "70px"
+  },
+  ticker: {
+    "justify-content": "right",
+    fontSize: "16px",
+    fontWeight: "500"
   }
 });
 
@@ -38,6 +43,9 @@ export default withStyles(styles)(({ classes, price = {}, update_price }) => {
             e.key === "Enter" ? update_price({ symbol: e.target.value }) : null
           }
         />
+      </div>
+      <div className={classes.ticker}>
+        <span>{(price.symbol || "").toUpperCase()}</span>
       </div>
     </div>
   );

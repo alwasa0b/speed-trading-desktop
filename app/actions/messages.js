@@ -6,7 +6,8 @@ import {
   POSITIONS_UPDATED,
   ORDERS_UPDATED,
   PROGRESS_UPDATE,
-  START_LOGGING
+  START_LOGGING,
+  TICKER_UPDATED
 } from "../constants/messages";
 
 const { ipcRenderer } = require("electron");
@@ -56,6 +57,7 @@ export const update_price = ({ symbol }) => async (
 ) => {
   await ipc.removeAllListeners(PRICE_UPDATED);
   await ipc.send(UPDATE_PRICE, { symbol });
+  dispatch({ type: TICKER_UPDATED, payload: symbol });
 
   ipc.on(PRICE_UPDATED, async (event, data) => {
     dispatch({ type: PRICE_UPDATED, data });
