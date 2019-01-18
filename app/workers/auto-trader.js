@@ -56,8 +56,9 @@ export default (ipcMain, emitter) => {
 };
 
 class AutoTrader {
+  _account = {};
   _high = 0;
-  _pause_price = Number.MAX_SAFE_INTEGER;
+  _current_price = Number.MAX_SAFE_INTEGER;
   _paused = false;
   _activityTrading = false;
   _numberOfTradeRuns = 0;
@@ -69,16 +70,22 @@ class AutoTrader {
     this._instructions = instructions;
     this._onStop = onStop;
     this._emitter = emitter;
-    this._pause_price = Number(instructions.price);
+    this._current_price = Number(instructions.price);
     this._high = Number(instructions.high);
     emitter.on(
       `PRICE_UPDATED_${this._instructions.ticker}`,
       this.updatePausedPrice
     );
+
+    emitter.on(`ACCOUNT_UPDATED`, this.updateAccount);
   }
 
+  updateAccount = account => {
+    this._account = account;
+  };
+
   updatePausedPrice = ({ price, high }) => {
-    this._pause_price = Number(price);
+    this._current_price = Number(price);
     this._high = this._high || Number(high);
   };
 
@@ -97,6 +104,10 @@ class AutoTrader {
   start = async () => {
     this._activityTrading = true;
     logger.info(`starting ${JSON.stringify(this._instructions)}..`);
+
+    //wait until we get updates for price and account
+    await timeout(1200);
+
     try {
       while (this._activityTrading) {
         if (this._shouldExecuteNewTrade()) {
@@ -129,11 +140,20 @@ class AutoTrader {
 
   _trade = async () => {
     try {
+      this._cancel_old_order();
+
+      if (!this._haveEnoughBuyingPower()) {
+        logger.warn(
+          `not enough buying power to buy ${this._instructions.quantity} of ${
+            this._instructions.ticker
+          }`
+        );
+        return;
+      }
+
       logger.info("starting a buy order..");
 
       this._activeOrders++;
-
-      this._cancel_old_order();
 
       const buyOrder = await this._buy_order(this._instructions);
 
@@ -271,6 +291,14 @@ class AutoTrader {
     }
   };
 
+  _haveEnoughBuyingPower() {
+    return (
+      (this._current_price - this._instructions.under_bid_price) *
+        this._instructions.quantity <
+      this._account.margin_balances.day_trade_buying_power * 0.93
+    );
+  }
+
   async _cancel_old_order() {
     if (this._openOrders.length < this._instructions.number_of_open_orders)
       return;
@@ -339,7 +367,7 @@ class AutoTrader {
       (!this._instructions.number_of_runs ||
         this._instructions.number_of_runs > this._numberOfTradeRuns) &&
       !this._paused &&
-      this._pause_price < (this._instructions.pause_price || this._high)
+      this._current_price < (this._instructions.pause_price || this._high)
     );
   }
 }

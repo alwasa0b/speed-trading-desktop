@@ -43,6 +43,8 @@ import {
 import { logout, login } from "./robinhood-service";
 import { EventEmitter } from "events";
 import ticker_manager from "./workers/ticker_manager";
+import account_manager from "./workers/account_manager";
+
 const emitter = new EventEmitter();
 
 let mainWindow = null;
@@ -134,6 +136,7 @@ app.on("ready", async () => {
 
 ipcMain.on(LOGIN_REQUEST, async function(event, { login: test }) {
   await login(test);
+  account_manager(emitter, ipcMain);
   event.sender.send(LOGIN_SUCCESS);
 });
 

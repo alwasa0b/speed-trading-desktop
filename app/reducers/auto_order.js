@@ -5,7 +5,8 @@ import {
   UPDATE_QUANTITY_AUTO,
   NUMBER_OF_RUNS,
   UPDATE_NUMBER_OF_OPEN_ORDERS,
-  UPDATE_PAUSE_PRICE
+  UPDATE_PAUSE_PRICE,
+  CLEAR
 } from "../constants/auto";
 
 import {
@@ -61,6 +62,8 @@ export default (
     case PROGRESS_UPDATE:
       let messages = [...state.messages, action.payload];
       return { ...state, messages };
+    case CLEAR:
+      return { ...state, messages: [] };
     default:
       return state;
   }

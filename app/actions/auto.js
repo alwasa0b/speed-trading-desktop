@@ -5,8 +5,10 @@ import {
   UPDATE_QUANTITY_AUTO,
   NUMBER_OF_RUNS,
   UPDATE_NUMBER_OF_OPEN_ORDERS,
-  UPDATE_PAUSE_PRICE
+  UPDATE_PAUSE_PRICE,
+  CLEAR
 } from "../constants/auto";
+
 import {
   START_WORKER,
   WORKER_STARTED,
@@ -134,3 +136,5 @@ export const update_worker = () => async (
     symbol
   });
 };
+
+export const clear = () => ({ type: CLEAR });
