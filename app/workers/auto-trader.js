@@ -160,27 +160,24 @@ class AutoTrader {
       this._openOrders.push(buyOrder);
 
       logger.info(`waiting for buy order id: ${buyOrder.id} to fill..`);
+
       const filledOrder = await this._makeSureWeFillBuyOrder({
         buyOrder
       });
-
-      await this._sell_buy_order(filledOrder);
 
       if (filledOrder.state === "cancelled") {
         this._openOrders = this._openOrders.filter(
           o => o.id !== filledOrder.id
         );
         this._activeOrders--;
-      }
-
-      if (this._activeOrders === 0 && !this._shouldExecuteNewTrade()) {
-        this._activityTrading = false;
+      } else {
+        await this._sell_buy_order(filledOrder);
       }
     } catch (error) {
-      logger.error("_trade crashed..");
+      logger.error(
+        "_trade crashed.. now you might have an order that was not handled correctly"
+      );
       logger.error(error.message);
-      this._activityTrading = false;
-      this._onStop(this.id);
     }
   };
 
@@ -241,7 +238,7 @@ class AutoTrader {
   _makeSureWeFillBuyOrder = async ({ buyOrder }) => {
     let numberOfTries = 0;
     while (this._activityTrading || this._activeOrders.length > 0) {
-      const order = await Robinhood.url(buyOrder.url);
+      const order = (await Robinhood.url(buyOrder.url)) || {};
 
       if (order.state === "filled") {
         return order;
@@ -264,7 +261,7 @@ class AutoTrader {
   _makeSureWeFillSellOrder = async ({ sellOrder, filledOrder }) => {
     let numberOfTries = 0;
     while (this._activityTrading || this._activeOrders.length > 0) {
-      const order = await Robinhood.url(sellOrder.url);
+      const order = (await Robinhood.url(sellOrder.url)) || {};
 
       if (order.state === "filled") {
         return sellOrder;
@@ -362,10 +359,7 @@ class AutoTrader {
   }
 
   _shouldExecuteNewTrade() {
-    //todo: add account cash and max stock price
     return (
-      (!this._instructions.number_of_runs ||
-        this._instructions.number_of_runs > this._numberOfTradeRuns) &&
       !this._paused &&
       this._current_price < (this._instructions.pause_price || this._high)
     );
