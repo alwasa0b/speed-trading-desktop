@@ -16,10 +16,10 @@ const styles = theme => ({
     minWidth: 60
   },
   error: {
-    color: "#DC143Cd"
+    color: "red"
   },
   warn: {
-    color: "#FF8C00"
+    color: "orange"
   },
   info: {
     color: "black"
