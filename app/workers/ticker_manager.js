@@ -33,28 +33,34 @@ export default async (emitter, ipcMain) => {
   emitter.addListener(ADD_SYMBOL, addSymbol);
 
   async function startUpdating() {
-    while (true) {
-      await timeout(700);
-      for (const symbol in symbols) {
-        const {
-          results: [ticker]
-        } = await Robinhood.quote_data(symbol);
+    try {
+      while (true) {
+        await timeout(700);
+        for (const symbol in symbols) {
+          const {
+            results: [ticker]
+          } = await Robinhood.quote_data(symbol);
 
-        const fundamentals = await Robinhood.fundamentals(symbol);
+          const fundamentals = await Robinhood.fundamentals(symbol);
 
-        if (emitter.listenerCount(`PRICE_UPDATED_${symbol}`) !== 0) {
-          symbols[symbol] = {
-            price: ticker.last_trade_price,
-            high: fundamentals.high,
-            instrument: ticker.instrument,
-            symbol: ticker.symbol
-          };
-          emitter.emit(`PRICE_UPDATED_${symbol}`, symbols[symbol]);
-        } else {
-          delete symbols[symbol];
-          logger.info(`${symbol} removed from ticker manager..`);
+          if (emitter.listenerCount(`PRICE_UPDATED_${symbol}`) !== 0) {
+            symbols[symbol] = {
+              price: ticker.last_trade_price,
+              high: fundamentals.high,
+              instrument: ticker.instrument,
+              symbol: ticker.symbol
+            };
+            emitter.emit(`PRICE_UPDATED_${symbol}`, symbols[symbol]);
+          } else {
+            delete symbols[symbol];
+            logger.info(`${symbol} removed from ticker manager..`);
+          }
         }
       }
+    } catch (error) {
+      logger.error(`error updating ticker.. restarting...`);
+      await timeout(2000);
+      startUpdating();
     }
   }
 
