@@ -140,7 +140,7 @@ class AutoTrader {
 
   _trade = async () => {
     try {
-      this._cancel_old_order();
+      await this._cancel_old_order();
 
       if (!this._haveEnoughBuyingPower()) {
         logger.warn(
@@ -304,31 +304,13 @@ class AutoTrader {
     logger.info(`old buy order id: ${oldestOrder.id} is being canceled..`);
 
     try {
-      let counter = 0;
       await Robinhood.cancel_order(oldestOrder);
-      let order = {};
-      while (order.state !== "cancelled") {
-        order = await Robinhood.url(oldestOrder.url);
-        await timeout(3000);
-        counter += 1;
-        if (counter > 5) {
-          const test = (await Robinhood.url(oldestOrder.url)).state;
-          logger.error(
-            `state ${test} order id: ${
-              oldestOrder.id
-            } was not canceled HANDLE MANUALLY..`
-          );
-          return;
-        }
-      }
+      await timeout(2000);
 
       logger.info(`order id: ${oldestOrder.id} was canceled..`);
     } catch (error) {
       logger.error(`failed to cancel order id: ${oldestOrder.id}..`);
       logger.error(error.message);
-      const order = await Robinhood.url(oldestOrder.url);
-      logger.error(`order: ${oldestOrder.id} state: ${order.state}..`);
-      this._sell_buy_order(order);
     }
   }
 
