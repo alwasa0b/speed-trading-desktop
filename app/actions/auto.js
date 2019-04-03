@@ -19,7 +19,8 @@ import {
   WORKER_UPDATED,
   WORKER_PAUSED,
   WORKER_RESUMED,
-  RESUME_WORKER
+  RESUME_WORKER,
+  PANIC
 } from "../constants/messages";
 
 const { ipcRenderer } = require("electron");
@@ -135,6 +136,10 @@ export const update_worker = () => async (
     instrument,
     symbol
   });
+};
+
+export const panic = () => async (dispatch, getState, ipc = ipcRenderer) => {
+  await ipc.send(PANIC);
 };
 
 export const clear = () => ({ type: CLEAR });

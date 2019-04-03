@@ -35,7 +35,7 @@ export default async (emitter, ipcMain) => {
   async function startUpdating() {
     try {
       while (true) {
-        await timeout(700);
+        await timeout(1200);
         for (const symbol in symbols) {
           const {
             results: [ticker]

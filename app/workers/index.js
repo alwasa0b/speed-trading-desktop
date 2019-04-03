@@ -41,10 +41,21 @@ export const update_positions = callback => async () => {
 export const update_orders = callback => async () => {
   let options = { updated_at: getDate() };
   let orders = await Robinhood.orders(options);
-  let tickers = await mapLimit(orders.results, 1, async order => {
-    let ticker = await Robinhood.url(order.instrument);
-    return { symbol: ticker.symbol, ...order };
-  });
+  let allOrders = orders.results;
+
+  // while (orders.next) {
+  //   orders = await Robinhood.url(orders.next);
+  //   allOrders = allOrders.concat(orders.results);
+  // }
+
+  let tickers = await mapLimit(
+    allOrders.filter(o => o.state !== "cancelled" && o.state !== "filled"),
+    1,
+    async order => {
+      let ticker = await Robinhood.url(order.instrument);
+      return { symbol: ticker.symbol, ...order };
+    }
+  );
 
   callback(tickers);
 };

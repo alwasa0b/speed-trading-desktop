@@ -43,7 +43,7 @@ import {
 import { logout, login } from "./robinhood-service";
 import { EventEmitter } from "events";
 import ticker_manager from "./workers/ticker_manager";
-import account_manager from "./workers/account_manager";
+// import account_manager from "./workers/account_manager";
 
 const emitter = new EventEmitter();
 
@@ -63,7 +63,9 @@ if (
   const p = path.join(__dirname, "..", "app", "node_modules");
   require("module").globalPaths.push(p);
 }
-
+process.on("unhandledRejection", (reason, p) => {
+  console.log("Unhandled Rejection at: Promise", p, "reason:", reason);
+});
 const installExtensions = async () => {
   const installer = require("electron-devtools-installer");
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
@@ -92,6 +94,9 @@ app.on("window-all-closed", () => {
   if (update_price_handle) clearInterval(update_price_handle);
   if (update_position_handle) clearInterval(update_position_handle);
   if (update_order_handle) clearInterval(update_order_handle);
+
+  emitter.emit("EXIT");
+
   logout();
 });
 
@@ -105,7 +110,11 @@ app.on("ready", async () => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    width: process.env.NODE_ENV === "development" ? 1600 : 500,
+    width:
+      process.env.NODE_ENV === "development" ||
+      process.env.DEBUG_PROD === "true"
+        ? 1200
+        : 500,
     height: 900,
     resizable: false
   });
@@ -126,6 +135,7 @@ app.on("ready", async () => {
     if (update_price_handle) clearInterval(update_price_handle);
     if (update_position_handle) clearInterval(update_position_handle);
     if (update_order_handle) clearInterval(update_order_handle);
+    emitter.emit("EXIT");
     logout();
     mainWindow = null;
   });
@@ -136,7 +146,7 @@ app.on("ready", async () => {
 
 ipcMain.on(LOGIN_REQUEST, async function(event, { login: test }) {
   await login(test);
-  account_manager(emitter, ipcMain);
+  // account_manager(emitter, ipcMain);
   event.sender.send(LOGIN_SUCCESS);
 });
 
@@ -178,7 +188,7 @@ ipcMain.on(UPDATE_POSITIONS, event => {
   if (update_position_handle != null) clearInterval(update_position_handle);
   update_position_handle = setInterval(
     update_positions(data => event.sender.send(POSITIONS_UPDATED, data)),
-    1000
+    2000
   );
 });
 

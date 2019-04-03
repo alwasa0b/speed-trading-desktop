@@ -10,11 +10,15 @@ const styles = theme => ({
   root: {
     display: "flex",
     flexWrap: "wrap",
-
     "flex-direction": "row",
     "flex-wrap": "wrap"
   },
   formControl: {
+    margin: theme.spacing.unit,
+
+    minWidth: 150
+  },
+  buttonControl: {
     margin: theme.spacing.unit,
     minWidth: 60
   },
@@ -22,7 +26,7 @@ const styles = theme => ({
     flex: "1 1 100%"
   },
   input: {
-    width: 60
+    width: 150
   },
   label: {
     fontSize: 9
@@ -69,15 +73,15 @@ export default withStyles(styles)(
     update_pause_price,
     startStopWorker,
     pause_resume_worker,
-    update_worker
+    update_worker,
+    panic
   }) => (
     <div className={classes.container} autoComplete="off">
       <div className={classes.row}>
         <div className={classes.column}>
           <div className={classes.formControl}>
-            <label className={classes.label}>Under Bid </label>
+            <div className={classes.label}>Under Bid </div>
             <input
-              type={"number"}
               value={under_bid_price}
               onChange={({ target }) => update_under_bid_price(target.value)}
               className={classes.input}
@@ -86,9 +90,8 @@ export default withStyles(styles)(
         </div>
         <div className={classes.column}>
           <div className={classes.formControl}>
-            <label className={classes.label}>Over avg </label>
+            <div className={classes.label}>Over avg </div>
             <input
-              type={"number"}
               value={over_my_price}
               onChange={({ target }) => update_over_ask_price(target.value)}
               className={classes.input}
@@ -98,7 +101,7 @@ export default withStyles(styles)(
 
         <div className={classes.column}>
           <div className={classes.formControl}>
-            <label className={classes.label}>Interval </label>
+            <div className={classes.label}>Interval </div>
             <input
               type={"number"}
               value={time_interval}
@@ -110,9 +113,8 @@ export default withStyles(styles)(
 
         <div className={classes.column}>
           <div className={classes.formControl}>
-            <label className={classes.label}>Qty </label>
+            <div className={classes.label}>Qty </div>
             <input
-              type={"number"}
               value={quantity}
               onChange={({ target }) => update_quantity(target.value)}
               className={classes.input}
@@ -123,31 +125,7 @@ export default withStyles(styles)(
       <div className={classes.row}>
         <div className={classes.column}>
           <div className={classes.formControl}>
-            <label className={classes.label}>Number Of Runs </label>
-            <input
-              type={"number"}
-              value={number_of_runs}
-              onChange={({ target }) => update_number_of_runs(target.value)}
-              className={classes.input}
-            />
-          </div>
-        </div>
-        <div className={classes.column}>
-          <div className={classes.formControl}>
-            <label className={classes.label}># Open Orders </label>
-            <input
-              type={"number"}
-              value={number_of_open_orders}
-              onChange={({ target }) =>
-                update_number_of_open_orders(target.value)
-              }
-              className={classes.input}
-            />
-          </div>
-        </div>
-        <div className={classes.column}>
-          <div className={classes.formControl}>
-            <label className={classes.label}>Pause Price</label>
+            <div className={classes.label}>Pause Price</div>
             <input
               type={"number"}
               value={pause_price}
@@ -160,12 +138,12 @@ export default withStyles(styles)(
 
       <div className={classes.row}>
         <div className={classes.column}>
-          <div className={classes.formControl}>
+          <div className={classes.buttonControl}>
             {(ticker || "").toUpperCase()}
           </div>
         </div>
         <div className={classes.column}>
-          <div className={classes.formControl}>
+          <div className={classes.buttonControl}>
             <button
               className={classes.button}
               onClick={startStopWorker}
@@ -176,7 +154,7 @@ export default withStyles(styles)(
           </div>
         </div>
         <div className={classes.column}>
-          <div className={classes.formControl}>
+          <div className={classes.buttonControl}>
             <button
               className={classes.button}
               onClick={pause_resume_worker}
@@ -187,13 +165,24 @@ export default withStyles(styles)(
           </div>
         </div>
         <div className={classes.column}>
-          <div className={classes.formControl}>
+          <div className={classes.buttonControl}>
             <button
               className={classes.button}
               onClick={update_worker}
               disabled={!running}
             >
               UPDATE
+            </button>
+          </div>
+        </div>
+        <div className={classes.column}>
+          <div className={classes.buttonControl}>
+            <button
+              className={classes.button}
+              onClick={panic}
+              disabled={!running}
+            >
+              PANIC
             </button>
           </div>
         </div>

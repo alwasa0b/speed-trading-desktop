@@ -1,4 +1,4 @@
-import { timeout } from "./util";
+import { timeout, roundIt } from "./util";
 import { logger } from "../logger";
 import { Robinhood } from "../robinhood-service";
 
@@ -24,12 +24,10 @@ export default async function({
     if (state === "filled") {
       logger.info("order filled..");
 
-      sell_price = parseFloat(sell_price).toFixed(2);
+      sell_price = roundIt(sell_price);
 
       if (sell_order_type === "limit") {
-        const over_bid = parseFloat(
-          Number(average_price) + Number(sell_price)
-        ).toFixed(2);
+        const over_bid = roundIt(Number(average_price) + Number(sell_price));
 
         logger.info("placing sell order...");
         logger.info(`id: ${order.id}, sell: ${over_bid}`);

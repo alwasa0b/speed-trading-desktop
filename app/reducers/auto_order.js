@@ -21,9 +21,9 @@ import {
 export default (
   state = {
     time_interval: 60,
-    under_bid_price: 0.15,
-    over_my_price: 0.15,
-    quantity: 10,
+    under_bid_price: "0.15",
+    over_my_price: "0.15",
+    quantity: "10",
     running: false,
     messages: [],
     number_of_open_orders: 3,
@@ -46,11 +46,11 @@ export default (
     case UPDATE_TIME_INTERVAL:
       return { ...state, time_interval: parseNumber(action.payload) };
     case UPDATE_UNDER_BID_PRICE:
-      return { ...state, under_bid_price: parseNumber(action.payload) };
+      return { ...state, under_bid_price: action.payload };
     case UPDATE_OVER_ASK_PRICE:
-      return { ...state, over_my_price: parseNumber(action.payload) };
+      return { ...state, over_my_price: action.payload };
     case UPDATE_QUANTITY_AUTO:
-      return { ...state, quantity: parseNumber(action.payload) };
+      return { ...state, quantity: action.payload };
     case WORKER_STARTED:
       return { ...state, running: true };
     case WORKER_STOPPED:

@@ -15,6 +15,7 @@ export const RESUME_WORKER = "RESUME_WORKER";
 export const WORKER_RESUMED = "WORKER_RESUMED";
 export const UPDATE_WORKER = "UPDATE_WORKER";
 export const WORKER_UPDATED = "WORKER_UPDATED";
+export const PANIC = "PANIC";
 
 export const PROGRESS_UPDATE = "PROGRESS_UPDATE";
 export const START_LOGGING = "START_LOGGING";

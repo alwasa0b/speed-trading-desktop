@@ -44,3 +44,17 @@ export default ({ username, password }) => {
 };
 
 export const timeout = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+export const active = ({ order }) =>
+  order.state !== "cancelled" &&
+  order.state !== "rejected" &&
+  order.state !== "filled" &&
+  order.state !== "error";
+
+export const activeOrders = orders => orders.filter(active);
+
+export function roundIt(value) {
+  return Number((Math.round(Math.floor(value * 10000)) / 10000).toFixed(2));
+}
+
+export const cancel = async b => await b.cancel();

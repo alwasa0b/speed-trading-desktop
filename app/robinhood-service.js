@@ -1,4 +1,4 @@
-import init from "./workers/util";
+import init, { timeout } from "./workers/util";
 
 export let Robinhood;
 
@@ -8,6 +8,7 @@ export const login = async credentials => {
 };
 
 export const logout = async credentials => {
+  await timeout(2000);
   if (Robinhood == null) return;
   Robinhood = await Robinhood.expire_token();
   Robinhood = null;
