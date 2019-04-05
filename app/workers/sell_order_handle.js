@@ -28,7 +28,7 @@ const sell_order_handle = async (
     try {
       await Robinhood.cancel_order(sell_order.order);
       await timeout(3000);
-
+      sell_order.order = await Robinhood.url(sell_order.order.url);
       const options = {
         type,
         quantity:
@@ -42,7 +42,7 @@ const sell_order_handle = async (
       order = await sell_order_handle(options, callback);
     } catch (error) {
       logger.error(`failed to cancel order ${JSON.stringify(error)}`);
-      order = { state: "error", id };
+      order = { order: { state: "error", id } };
     }
 
     return order;
@@ -74,8 +74,6 @@ const sell_order_handle = async (
       sell_order.order = await Robinhood.place_sell_order(options);
 
       if (!sell_order.order) throw Error("order is null");
-
-      statusCheckLoop();
     } catch (error) {
       logger.error(`error ${JSON.stringify(error)}`);
       logger.error(`error placing sell order ${JSON.stringify(options)}`);
@@ -89,6 +87,7 @@ const sell_order_handle = async (
       sell_order.order = { state: "error", id };
     }
 
+    statusCheckLoop();
     sell_order.processing = false;
   }
 

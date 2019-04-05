@@ -1,5 +1,5 @@
 import { logger } from "../logger";
-import { timeout, activeOrders, cancel } from "./util";
+import { timeout, activeOrders, cancel, timeoutWithClear } from "./util";
 import buy_order_handle from "./buy_order_handle";
 import buy_order_status_changed from "./buy_order_status_changed";
 const uuid_v4 = require("uuid/v4");
@@ -14,12 +14,15 @@ export default async (
     over_my_price,
     symbol,
     instrument,
-    pause_price
+    pause_price,
+    locked
   },
   emitter,
   on_stopped
 ) => {
   const id = uuid_v4();
+  const handled_timeout = timeoutWithClear();
+
   let last_price = 0;
 
   let interval =
@@ -52,7 +55,7 @@ export default async (
     update_price
   );
 
-  function update({
+  async function update({
     under_bid_price,
     quantity,
     time_interval,
@@ -85,6 +88,7 @@ export default async (
     );
 
     reset();
+
     logger.info("updated");
   }
 
@@ -141,11 +145,15 @@ export default async (
       const active_buy_orders = activeOrders(buy_orders);
 
       if (active_buy_orders.length > 0) {
-        logger.info("replacing buy orders..");
+        if (average_cost.price && locked) {
+          //do nothing for now
+        } else {
+          logger.info("replacing buy orders..");
 
-        buy_orders.push(
-          ...(await Promise.all(active_buy_orders.map(cancelReplace)))
-        );
+          buy_orders.push(
+            ...(await Promise.all(active_buy_orders.map(cancelReplace)))
+          );
+        }
       } else {
         logger.info("placing new buy orders..");
         buy_orders.push(...(await Promise.all(bids.map(createBuyOrder))));
@@ -162,13 +170,13 @@ export default async (
 
     while (running) {
       trade();
-      await timeout(interval);
+      await handled_timeout.timeout(interval);
     }
   }
 
   function reset() {
     exit();
-    trade();
+    handled_timeout.clear();
   }
 
   emitter.addListener(`RESET_${symbol.toLocaleLowerCase()}`, reset);

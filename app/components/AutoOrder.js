@@ -62,6 +62,7 @@ export default withStyles(styles)(
     number_of_runs,
     number_of_open_orders,
     pause_price,
+    locked,
     running,
     paused,
     update_under_bid_price,
@@ -74,6 +75,7 @@ export default withStyles(styles)(
     startStopWorker,
     pause_resume_worker,
     update_worker,
+    toggle_locked,
     panic
   }) => (
     <div className={classes.container} autoComplete="off">
@@ -130,6 +132,17 @@ export default withStyles(styles)(
               type={"number"}
               value={pause_price}
               onChange={({ target }) => update_pause_price(target.value)}
+              className={classes.input}
+            />
+          </div>
+        </div>
+        <div className={classes.column}>
+          <div className={classes.formControl}>
+            <div className={classes.label}>Lock in buy orders</div>
+            <input
+              type={"checkbox"}
+              checked={locked}
+              onChange={toggle_locked}
               className={classes.input}
             />
           </div>

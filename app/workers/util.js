@@ -45,6 +45,25 @@ export default ({ username, password }) => {
 
 export const timeout = ms => new Promise(resolve => setTimeout(resolve, ms));
 
+export const timeoutWithClear = () => {
+  let handle = null;
+  let resolver = null;
+
+  const timeout = ms =>
+    new Promise(resolve => {
+      resolver = resolve;
+      handle = setTimeout(resolve, ms);
+    });
+
+  return {
+    timeout,
+    clear: () => {
+      clearTimeout(handle);
+      resolver();
+    }
+  };
+};
+
 export const active = ({ order }) =>
   order.state !== "cancelled" &&
   order.state !== "rejected" &&

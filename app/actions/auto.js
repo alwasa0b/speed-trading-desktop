@@ -20,7 +20,8 @@ import {
   WORKER_PAUSED,
   WORKER_RESUMED,
   RESUME_WORKER,
-  PANIC
+  PANIC,
+  TOGGLE_LOCKED
 } from "../constants/messages";
 
 const { ipcRenderer } = require("electron");
@@ -143,3 +144,4 @@ export const panic = () => async (dispatch, getState, ipc = ipcRenderer) => {
 };
 
 export const clear = () => ({ type: CLEAR });
+export const toggle_locked = () => ({ type: TOGGLE_LOCKED });

@@ -28,7 +28,10 @@ export default (
       if (order.state !== "partially_filled") {
         logger.info(`removing order state: ${order.state} from buy_orders..`);
         const removeIndex = buy_orders.findIndex(
-          item => item.order.id === order.id
+          item =>
+            item.order.id === order.id ||
+            item.order.state === "cancelled" ||
+            item.order.state === "error"
         );
         ~removeIndex && buy_orders.splice(removeIndex, 1);
       }
@@ -38,7 +41,6 @@ export default (
         order.state === "rejected" ||
         order.state === "error"
       ) {
-        processing = false;
         return;
       }
 
@@ -122,8 +124,8 @@ export default (
       }
     } catch (error) {
       logger.error(`error handling buy order ${JSON.stringify(error)}`);
+    } finally {
+      processing = false;
     }
-
-    processing = false;
   };
 };

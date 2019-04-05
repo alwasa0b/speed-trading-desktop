@@ -15,22 +15,24 @@ import {
   PROGRESS_UPDATE,
   TICKER_UPDATED,
   WORKER_PAUSED,
-  WORKER_RESUMED
+  WORKER_RESUMED,
+  TOGGLE_LOCKED
 } from "../constants/messages";
 
 export default (
   state = {
-    time_interval: 60,
-    under_bid_price: "0.15",
-    over_my_price: "0.15",
-    quantity: "10",
+    time_interval: 260,
+    under_bid_price: ".3, .8, 1.8, 3",
+    over_my_price: ".03, .08, .03, 0",
+    quantity: "10, 15, 30, 45",
     running: false,
     messages: [],
     number_of_open_orders: 3,
     number_of_runs: 500,
     pause_price: 0,
     ticker: "",
-    paused: false
+    paused: false,
+    locked: true
   },
   action
 ) => {
@@ -59,6 +61,8 @@ export default (
       return { ...state, paused: true };
     case WORKER_RESUMED:
       return { ...state, paused: false };
+    case TOGGLE_LOCKED:
+      return { ...state, locked: !state.locked };
     case PROGRESS_UPDATE:
       let messages = [...state.messages, action.payload];
       return { ...state, messages };

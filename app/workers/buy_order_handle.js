@@ -43,7 +43,7 @@ const buy_order_handle = async (
       order = await buy_order_handle(options, callback);
     } catch (error) {
       logger.error(`failed to cancel order ${JSON.stringify(error)}`);
-      order = { state: "error", id };
+      order = { order: { state: "error", id } };
     }
 
     return order;
@@ -76,13 +76,11 @@ const buy_order_handle = async (
       buy_order.order = await Robinhood.place_buy_order(options);
 
       if (!buy_order.order) throw Error("order is null");
-
-      statusCheckLoop();
     } catch (error) {
       logger.error(`error placing order ${JSON.stringify(error)}`);
       buy_order.order = { state: "error", id };
     }
-
+    statusCheckLoop();
     buy_order.processing = false;
   }
 

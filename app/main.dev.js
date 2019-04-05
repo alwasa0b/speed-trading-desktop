@@ -113,7 +113,7 @@ app.on("ready", async () => {
     width:
       process.env.NODE_ENV === "development" ||
       process.env.DEBUG_PROD === "true"
-        ? 1200
+        ? 500
         : 500,
     height: 900,
     resizable: false
