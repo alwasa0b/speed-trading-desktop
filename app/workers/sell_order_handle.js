@@ -14,7 +14,8 @@ const sell_order_handle = async (
     sell_order.processing = true;
     try {
       await Robinhood.cancel_order(sell_order.order);
-      await timeout(2000);
+      await timeout(1000);
+      await update();
     } catch (error) {
       logger.error("failed to cancel order");
     }
@@ -27,8 +28,9 @@ const sell_order_handle = async (
 
     try {
       await Robinhood.cancel_order(sell_order.order);
-      await timeout(3000);
-      sell_order.order = await Robinhood.url(sell_order.order.url);
+      await timeout(1000);
+      await update();
+
       const options = {
         type,
         quantity:
@@ -42,7 +44,7 @@ const sell_order_handle = async (
       order = await sell_order_handle(options, callback);
     } catch (error) {
       logger.error(`failed to cancel order ${JSON.stringify(error)}`);
-      order = { order: { state: "error", id } };
+      order = { order: { state: "error", id: uuid() } };
     }
 
     return order;
@@ -51,13 +53,13 @@ const sell_order_handle = async (
   async function update() {
     try {
       sell_order.order = await Robinhood.url(sell_order.order.url);
-      await timeout(3000);
+      await timeout(1000);
     } catch (error) {
       logger.error(`error updating sell order ${JSON.stringify(error)}`);
     }
   }
 
-  let try_again = 1;
+  let try_again = 3;
 
   async function placeOrder() {
     const options = {
@@ -78,10 +80,11 @@ const sell_order_handle = async (
       logger.error(`error ${JSON.stringify(error)}`);
       logger.error(`error placing sell order ${JSON.stringify(options)}`);
 
-      await timeout(2000);
       if (try_again) {
+        await timeout(3000);
         try_again -= 1;
         await placeOrder();
+        return;
       }
 
       sell_order.order = { state: "error", id };
@@ -103,6 +106,7 @@ const sell_order_handle = async (
         sell_order.order.state !== "error"
       ) {
         await update();
+
         if (
           sell_order.order.state === "partially_filled" &&
           sell_order.order.executions.length > partial_fills
@@ -120,10 +124,13 @@ const sell_order_handle = async (
       logger.error("error while checking order status");
       logger.error(`${error}`);
 
-      await timeout(2000);
       if (check_status_again) {
+        await timeout(3000);
         check_status_again -= 1;
         statusCheckLoop();
+      } else {
+        sell_order.processing = true;
+        callback(sell_order.order || { state: "error", id });
       }
     }
   }

@@ -14,9 +14,10 @@ const buy_order_handle = async (
     try {
       buy_order.processing = true;
       await Robinhood.cancel_order(buy_order.order);
-      await timeout(2000);
+      await timeout(1000);
+      await update();
     } catch (error) {
-      logger.error("failed to cancel order");
+      logger.error("failed to buy_order.cancel");
     }
     buy_order.processing = false;
 
@@ -29,8 +30,8 @@ const buy_order_handle = async (
 
     try {
       await Robinhood.cancel_order(buy_order.order);
-      await timeout(2000);
-
+      await timeout(1000);
+      await update();
       const options = {
         last_price: price,
         under_bid,
@@ -42,8 +43,10 @@ const buy_order_handle = async (
       buy_order.processing = false;
       order = await buy_order_handle(options, callback);
     } catch (error) {
-      logger.error(`failed to cancel order ${JSON.stringify(error)}`);
-      order = { order: { state: "error", id } };
+      logger.error(
+        `failed to buy_order.cancelReplace ${JSON.stringify(error)}`
+      );
+      order = { order: { state: "error", id: uuid() } };
     }
 
     return order;
@@ -57,6 +60,8 @@ const buy_order_handle = async (
       logger.error(`error updating buy order ${JSON.stringify(error)}`);
     }
   }
+
+  let try_again = 3;
 
   async function placeOrder() {
     try {
@@ -78,6 +83,14 @@ const buy_order_handle = async (
       if (!buy_order.order) throw Error("order is null");
     } catch (error) {
       logger.error(`error placing order ${JSON.stringify(error)}`);
+
+      if (try_again) {
+        await timeout(3000);
+        try_again -= 1;
+        await placeOrder();
+        return;
+      }
+
       buy_order.order = { state: "error", id };
     }
     statusCheckLoop();
@@ -112,10 +125,13 @@ const buy_order_handle = async (
       logger.error("error while checking order status");
       logger.error(`${error}`);
 
-      await timeout(2000);
       if (check_status_again) {
+        await timeout(3000);
         check_status_again -= 1;
         statusCheckLoop();
+      } else {
+        buy_order.processing = true;
+        callback(buy_order.order || { state: "error", id });
       }
     }
   }

@@ -47,6 +47,7 @@ export default (ipcMain, emitter) => {
 
   ipcMain.on(STOP_WORKER, event => {
     auto_trader.stop();
+    event.sender.send(WORKER_RESUMED);
     event.sender.send(WORKER_STOPPED);
   });
 };
