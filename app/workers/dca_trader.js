@@ -125,8 +125,8 @@ export default async (
 
   async function trade() {
     while (inTrade && running) {
-      await timeout(interval);
       logger.warn("waiting on a processing trade call");
+      await timeout(min_interval_allowed * 1000);
     }
 
     try {

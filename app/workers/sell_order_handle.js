@@ -14,12 +14,11 @@ const sell_order_handle = async (
     sell_order.processing = true;
     try {
       await Robinhood.cancel_order(sell_order.order);
-      await timeout(1000);
+      await timeout(2000);
       await update();
     } catch (error) {
       logger.error("failed to cancel order");
     }
-    sell_order.processing = false;
   };
 
   sell_order.cancelReplace = async function cancelReplace(bid) {
@@ -28,7 +27,7 @@ const sell_order_handle = async (
 
     try {
       await Robinhood.cancel_order(sell_order.order);
-      await timeout(1000);
+      await timeout(2000);
       await update();
 
       const options = {
@@ -40,7 +39,6 @@ const sell_order_handle = async (
         bid_price: bid
       };
 
-      sell_order.processing = false;
       order = await sell_order_handle(options, callback);
     } catch (error) {
       logger.error(`failed to cancel order ${JSON.stringify(error)}`);
@@ -52,8 +50,8 @@ const sell_order_handle = async (
 
   async function update() {
     try {
-      sell_order.order = await Robinhood.url(sell_order.order.url);
       await timeout(1000);
+      sell_order.order = await Robinhood.url(sell_order.order.url);
     } catch (error) {
       logger.error(`error updating sell order ${JSON.stringify(error)}`);
     }

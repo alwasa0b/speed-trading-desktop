@@ -19,7 +19,6 @@ const buy_order_handle = async (
     } catch (error) {
       logger.error("failed to buy_order.cancel");
     }
-    buy_order.processing = false;
 
     return buy_order;
   };
@@ -40,7 +39,6 @@ const buy_order_handle = async (
         type
       };
 
-      buy_order.processing = false;
       order = await buy_order_handle(options, callback);
     } catch (error) {
       logger.error(
@@ -54,8 +52,8 @@ const buy_order_handle = async (
 
   async function update() {
     try {
-      buy_order.order = await Robinhood.url(buy_order.order.url);
       await timeout(1000);
+      buy_order.order = await Robinhood.url(buy_order.order.url);
     } catch (error) {
       logger.error(`error updating buy order ${JSON.stringify(error)}`);
     }
