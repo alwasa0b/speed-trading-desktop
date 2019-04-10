@@ -17,6 +17,7 @@ const sell_order_handle = async (
       await timeout(2000);
       await update();
     } catch (error) {
+      sell_order.processing = false;
       logger.error("failed to cancel order");
     }
   };
@@ -41,6 +42,7 @@ const sell_order_handle = async (
 
       order = await sell_order_handle(options, callback);
     } catch (error) {
+      sell_order.processing = false;
       logger.error(`failed to cancel order ${JSON.stringify(error)}`);
       order = { order: { state: "error", id: uuid() } };
     }
@@ -117,7 +119,8 @@ const sell_order_handle = async (
         }
       }
       sell_order.processing = true;
-      callback(sell_order.order);
+      await callback(sell_order.order);
+      sell_order.processing = false;
     } catch (error) {
       logger.error("error while checking order status");
       logger.error(`${error}`);
@@ -128,7 +131,8 @@ const sell_order_handle = async (
         statusCheckLoop();
       } else {
         sell_order.processing = true;
-        callback(sell_order.order || { state: "error", id });
+        await callback(sell_order.order || { state: "error", id });
+        sell_order.processing = false;
       }
     }
   }

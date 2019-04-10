@@ -1,5 +1,11 @@
 import { logger } from "../logger";
-import { timeout, activeOrders, cancel, timeoutWithClear } from "./util";
+import {
+  timeout,
+  activeOrders,
+  cancel,
+  timeoutWithClear,
+  clean_orders
+} from "./util";
 import buy_order_handle from "./buy_order_handle";
 import buy_order_status_changed from "./buy_order_status_changed";
 const uuid_v4 = require("uuid/v4");
@@ -43,7 +49,7 @@ export default async (
 
   let buy_orders = [];
   let sell_orders = [];
-  let average_cost = { price: 0 };
+  let average_costs = [];
 
   async function update_price({ price, high }) {
     last_price = Number(price);
@@ -82,7 +88,7 @@ export default async (
         symbol,
         sell_orders,
         over_bids,
-        average_cost
+        average_costs
       },
       emitter
     );
@@ -95,7 +101,23 @@ export default async (
   let paused = false;
   const should_trade = () => !paused && last_price < (ceiling_price || hod);
 
-  const cancelReplace = async o => await o.cancelReplace(last_price);
+  const cancelReplace = async o => {
+    if (o.order.state === "error") {
+      o.order.state = "handled";
+      return await buy_order_handle(
+        {
+          last_price,
+          under_bid: o.order.under_bid,
+          quantity: o.order.quantity,
+          instrument: { url: instrument, symbol },
+          type: "limit"
+        },
+        buy_status_changed
+      );
+    }
+
+    return await o.cancelReplace(last_price);
+  };
 
   let buy_status_changed = buy_order_status_changed(
     {
@@ -103,7 +125,7 @@ export default async (
       symbol,
       sell_orders,
       over_bids,
-      average_cost
+      average_costs
     },
     emitter
   );
@@ -145,7 +167,7 @@ export default async (
       const active_buy_orders = activeOrders(buy_orders);
 
       if (active_buy_orders.length > 0) {
-        if (average_cost.price && locked) {
+        if (average_costs.length > 0 && locked) {
           //do nothing for now
         } else {
           logger.info("replacing buy orders..");
@@ -158,6 +180,7 @@ export default async (
         logger.info("placing new buy orders..");
         buy_orders.push(...(await Promise.all(bids.map(createBuyOrder))));
       }
+      clean_orders(buy_orders);
     } catch (error) {
       logger.error(`ERROR in trade: ${JSON.stringify(error)}..`);
     }

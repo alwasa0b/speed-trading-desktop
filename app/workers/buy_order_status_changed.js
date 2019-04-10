@@ -4,7 +4,7 @@ import sell_order_handle from "./sell_order_handle";
 import sell_order_status_changed from "./sell_order_status_changed";
 
 export default (
-  { buy_orders, symbol, sell_orders, over_bids, average_cost },
+  { buy_orders, symbol, sell_orders, over_bids, average_costs },
   emitter
 ) => {
   let sell_status_changed = sell_order_status_changed(
@@ -12,7 +12,7 @@ export default (
       buy_orders,
       symbol,
       sell_orders,
-      average_cost
+      average_costs
     },
     emitter
   );
@@ -25,18 +25,11 @@ export default (
     }
     processing = true;
     try {
-      if (order.state !== "partially_filled") {
-        logger.info(`removing order state: ${order.state} from buy_orders..`);
-        const removeIndex = buy_orders.findIndex(
-          item => item.order.id === order.id
-        );
-        ~removeIndex && buy_orders.splice(removeIndex, 1);
-      }
-
       if (
         order.state === "cancelled" ||
         order.state === "rejected" ||
-        order.state === "error"
+        order.state === "error" ||
+        order.state === "handled"
       ) {
         return;
       }
@@ -67,39 +60,23 @@ export default (
         active_buy_orders = activeOrders(buy_orders);
       }
 
-      console.log("------------------");
-      console.log(`active_sell_orders.length: ${active_sell_orders.length}`);
-      console.log(`old total_average_price: ${average_cost.price}`);
-      average_cost.price =
-        (average_cost.price + Number(order.average_price)) /
-        (average_cost.price ? 2 : 1);
+      average_costs.push({
+        price: Number(order.average_price),
+        quantity: Number(order.cumulative_quantity)
+      });
 
-      console.log(`order_average_cost: ${order.average_price}`);
-      console.log(`current total_average_price: ${average_cost.price}`);
-
-      console.log(
-        `current over_bids: ${
-          over_bids[
-            active_sell_orders.length >= over_bids.length
-              ? over_bids.length - 1
-              : active_sell_orders.length
-          ]
-        }`
-      );
-
-      // console.log("before::");
-      // console.log(JSON.stringify(active_sell_orders, null, 4));
+      const cost =
+        average_costs.reduce((p, n) => p + n.price * n.quantity, 0) /
+        average_costs.reduce((p, n) => p + n.quantity, 0);
 
       const bid_price = roundIt(
-        average_cost.price +
+        cost +
           over_bids[
             active_sell_orders.length >= over_bids.length
               ? over_bids.length - 1
               : active_sell_orders.length
           ]
       );
-      console.log(`sell bid_price: ${bid_price}`);
-      console.log("------------------");
 
       let quantity = Number(order.cumulative_quantity);
 
@@ -122,6 +99,14 @@ export default (
     } catch (error) {
       logger.error(`error handling buy order ${JSON.stringify(error)}`);
     } finally {
+      if (order.state !== "partially_filled" && order.state !== "error") {
+        logger.info(`removing order state: ${order.state} from buy_orders..`);
+        const removeIndex = buy_orders.findIndex(
+          item => item.order.id === order.id
+        );
+        ~removeIndex && buy_orders.splice(removeIndex, 1);
+      }
+
       processing = false;
     }
   };

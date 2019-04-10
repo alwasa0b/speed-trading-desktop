@@ -67,8 +67,7 @@ export const timeoutWithClear = () => {
 export const active = ({ order }) =>
   order.state !== "cancelled" &&
   order.state !== "rejected" &&
-  order.state !== "filled" &&
-  order.state !== "error";
+  order.state !== "filled";
 
 export const activeOrders = orders => orders.filter(active);
 
@@ -79,18 +78,12 @@ export function roundIt(value) {
 export const cancel = async b => await b.cancel();
 
 function get_order(orders) {
-  return orders.findIndex(
-    item =>
-      item.order.state === "cancelled" ||
-      item.order.state === "error" ||
-      item.order.state === "rejected"
-  );
+  return orders.findIndex(item => item.order.state === "handled");
 }
 
 export function clean_orders(orders) {
   let removeIndex = get_order(orders);
   while (removeIndex >= 0) {
-    console.log(`cleaning an order ${JSON.stringify(orders[removeIndex])}`);
     ~removeIndex && orders.splice(removeIndex, 1);
     removeIndex = get_order(orders);
   }

@@ -10,11 +10,15 @@ const buy_order_handle = async (
   const id = uuid();
   const buy_order = { id, processing: true, order: {} };
 
+  buy_order.handled = () => {
+    buy_order.order.state = "handled";
+  };
+
   buy_order.cancel = async () => {
     try {
       buy_order.processing = true;
       await Robinhood.cancel_order(buy_order.order);
-      await timeout(1000);
+      await timeout(2000);
       await update();
     } catch (error) {
       logger.error("failed to buy_order.cancel");
@@ -29,7 +33,7 @@ const buy_order_handle = async (
 
     try {
       await Robinhood.cancel_order(buy_order.order);
-      await timeout(1000);
+      await timeout(2000);
       await update();
       const options = {
         last_price: price,
@@ -44,7 +48,18 @@ const buy_order_handle = async (
       logger.error(
         `failed to buy_order.cancelReplace ${JSON.stringify(error)}`
       );
-      order = { order: { state: "error", id: uuid() } };
+      buy_order.processing = false;
+      buy_order.order.state = "handled";
+      order = {
+        order: {
+          state: "error",
+          id: uuid(),
+          under_bid,
+          quantity,
+          instrument,
+          type
+        }
+      };
     }
 
     return order;
@@ -89,14 +104,49 @@ const buy_order_handle = async (
         return;
       }
 
-      buy_order.order = { state: "error", id };
+      buy_order.order = {
+        state: "error",
+        id,
+        under_bid,
+        quantity,
+        instrument,
+        type
+      };
     }
     statusCheckLoop();
     buy_order.processing = false;
   }
 
   let check_status_again = 5;
-  let partial_fills = 0;
+  let executions = [];
+
+  const partial_order = () =>
+    buy_order.order.executions.reduce(
+      (p, n, i) => {
+        if (!executions.some(e => e.id === n.id)) {
+          executions.push(n);
+
+          return {
+            price: i === 0 ? Number(n.price) : (p.price + Number(n.price)) / 2,
+            quantity: p.quantity + Number(n.quantity)
+          };
+        }
+        return p;
+      },
+      { quantity: 0, price: 0 }
+    );
+
+  const partial_buy_order = () => {
+    const partial = partial_order();
+    logger.warn(`creating partial_buy_order manually..`);
+    return {
+      state: buy_order.order.state,
+      id: buy_order.order.id,
+      cumulative_quantity: partial.quantity,
+      average_price: partial.price,
+      instrument: buy_order.order.instrument
+    };
+  };
 
   async function statusCheckLoop() {
     try {
@@ -110,15 +160,20 @@ const buy_order_handle = async (
 
         if (
           buy_order.order.state === "partially_filled" &&
-          buy_order.order.executions.length > partial_fills
+          buy_order.order.executions.length > executions.length
         ) {
-          partial_fills = buy_order.order.executions.length;
-          logger.info(`buy partial_fills: ${JSON.stringify(buy_order.order)}`);
-          // callback(buy_order.order);
+          buy_order.processing = true;
+          await callback(partial_buy_order());
+          buy_order.processing = false;
         }
       }
       buy_order.processing = true;
-      callback(buy_order.order);
+      if (executions.length > 0) {
+        await callback(partial_buy_order());
+      } else {
+        await callback(buy_order.order);
+      }
+      buy_order.processing = false;
     } catch (error) {
       logger.error("error while checking order status");
       logger.error(`${error}`);
@@ -129,7 +184,17 @@ const buy_order_handle = async (
         statusCheckLoop();
       } else {
         buy_order.processing = true;
-        callback(buy_order.order || { state: "error", id });
+        await callback(
+          buy_order.order || {
+            state: "error",
+            id,
+            under_bid,
+            quantity,
+            instrument,
+            type
+          }
+        );
+        buy_order.processing = false;
       }
     }
   }
