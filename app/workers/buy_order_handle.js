@@ -8,7 +8,16 @@ const buy_order_handle = async (
   callback
 ) => {
   const id = uuid();
-  const buy_order = { id, processing: true, order: {} };
+  const buy_order = {
+    id,
+    processing: true,
+    order: {},
+    last_price,
+    under_bid,
+    quantity,
+    instrument,
+    type
+  };
 
   buy_order.handled = () => {
     buy_order.order.state = "handled";
@@ -17,52 +26,15 @@ const buy_order_handle = async (
   buy_order.cancel = async () => {
     try {
       buy_order.processing = true;
-      await Robinhood.cancel_order(buy_order.order);
-      await timeout(2000);
-      await update();
+      if (buy_order.state !== "cancelled") {
+        await Robinhood.cancel_order(buy_order.order);
+        await update();
+      }
     } catch (error) {
       logger.error("failed to buy_order.cancel");
     }
 
     return buy_order;
-  };
-
-  buy_order.cancelReplace = async price => {
-    let order;
-    buy_order.processing = true;
-
-    try {
-      await Robinhood.cancel_order(buy_order.order);
-      await timeout(2000);
-      await update();
-      const options = {
-        last_price: price,
-        under_bid,
-        quantity,
-        instrument,
-        type
-      };
-
-      order = await buy_order_handle(options, callback);
-    } catch (error) {
-      logger.error(
-        `failed to buy_order.cancelReplace ${JSON.stringify(error)}`
-      );
-      buy_order.processing = false;
-      buy_order.order.state = "handled";
-      order = {
-        order: {
-          state: "error",
-          id: uuid(),
-          under_bid,
-          quantity,
-          instrument,
-          type
-        }
-      };
-    }
-
-    return order;
   };
 
   async function update() {
@@ -127,7 +99,9 @@ const buy_order_handle = async (
           executions.push(n);
 
           return {
-            price: i === 0 ? Number(n.price) : (p.price + Number(n.price)) / 2,
+            price:
+              (p.price * p.quantity + Number(n.quantity) * Number(n.price)) /
+              (p.quantity + Number(n.quantity)),
             quantity: p.quantity + Number(n.quantity)
           };
         }
@@ -137,12 +111,13 @@ const buy_order_handle = async (
     );
 
   const partial_buy_order = () => {
+    const last_qty = executions.reduce((p, n) => p + n.quantity, 0);
     const partial = partial_order();
     logger.warn(`creating partial_buy_order manually..`);
     return {
       state: buy_order.order.state,
       id: buy_order.order.id,
-      cumulative_quantity: partial.quantity,
+      cumulative_quantity: partial.quantity - last_qty,
       average_price: partial.price,
       instrument: buy_order.order.instrument
     };

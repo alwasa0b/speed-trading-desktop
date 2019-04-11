@@ -8,46 +8,19 @@ const sell_order_handle = async (
   callback
 ) => {
   const id = uuid();
-  const sell_order = { id, processing: true, order: {} };
+  const sell_order = { id, processing: true, order: {}, callback };
 
   sell_order.cancel = async () => {
     sell_order.processing = true;
     try {
-      await Robinhood.cancel_order(sell_order.order);
-      await timeout(2000);
-      await update();
+      if (sell_order.state !== "cancelled") {
+        await Robinhood.cancel_order(sell_order.order);
+        await update();
+      }
     } catch (error) {
       sell_order.processing = false;
       logger.error("failed to cancel order");
     }
-  };
-
-  sell_order.cancelReplace = async function cancelReplace(bid) {
-    let order;
-    sell_order.processing = true;
-
-    try {
-      await Robinhood.cancel_order(sell_order.order);
-      await timeout(2000);
-      await update();
-
-      const options = {
-        type,
-        quantity:
-          quantity -
-          sell_order.order.executions.reduce((p, n) => p + n.quantity, 0),
-        instrument,
-        bid_price: bid
-      };
-
-      order = await sell_order_handle(options, callback);
-    } catch (error) {
-      sell_order.processing = false;
-      logger.error(`failed to cancel order ${JSON.stringify(error)}`);
-      order = { order: { state: "error", id: uuid() } };
-    }
-
-    return order;
   };
 
   async function update() {

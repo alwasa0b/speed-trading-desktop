@@ -2,12 +2,13 @@ import { logger } from "../logger";
 import {
   timeout,
   activeOrders,
-  cancel,
   timeoutWithClear,
-  clean_orders
+  clean_orders,
+  cancel
 } from "./util";
 import buy_order_handle from "./buy_order_handle";
 import buy_order_status_changed from "./buy_order_status_changed";
+import sell_order_handle from "./sell_order_handle";
 const uuid_v4 = require("uuid/v4");
 const min_interval_allowed = 20;
 
@@ -28,6 +29,7 @@ export default async (
 ) => {
   const id = uuid_v4();
   const handled_timeout = timeoutWithClear();
+  const transactions = [];
 
   let last_price = 0;
 
@@ -47,6 +49,7 @@ export default async (
   if (bids.length !== qts.length)
     throw new Error("bid and qty count don't match");
 
+  let trader = { inTrade: false, pause_callbacks: false, transactions };
   let buy_orders = [];
   let sell_orders = [];
   let average_costs = [];
@@ -84,6 +87,7 @@ export default async (
 
     buy_status_changed = buy_order_status_changed(
       {
+        trader,
         buy_orders,
         symbol,
         sell_orders,
@@ -101,26 +105,29 @@ export default async (
   let paused = false;
   const should_trade = () => !paused && last_price < (ceiling_price || hod);
 
-  const cancelReplace = async o => {
-    if (o.order.state === "error") {
-      o.order.state = "handled";
-      return await buy_order_handle(
-        {
-          last_price,
-          under_bid: o.order.under_bid,
-          quantity: o.order.quantity,
-          instrument: { url: instrument, symbol },
-          type: "limit"
-        },
-        buy_status_changed
-      );
-    }
-
-    return await o.cancelReplace(last_price);
+  const cancelReplace = async () => {
+    const orders = await exit();
+    const new_orders = await Promise.all(
+      orders.map(
+        async o =>
+          await buy_order_handle(
+            {
+              last_price,
+              under_bid: o.under_bid,
+              quantity: o.quantity,
+              instrument: { url: instrument, symbol },
+              type: "limit"
+            },
+            buy_status_changed
+          )
+      )
+    );
+    buy_orders.push(...new_orders);
   };
 
   let buy_status_changed = buy_order_status_changed(
     {
+      trader,
       buy_orders,
       symbol,
       sell_orders,
@@ -142,11 +149,10 @@ export default async (
       buy_status_changed
     );
 
-  let inTrade = false;
   let running = true;
 
   async function trade() {
-    while (inTrade && running) {
+    while (trader.inTrade && running) {
       logger.warn("waiting on a processing trade call");
       await timeout(min_interval_allowed * 1000);
     }
@@ -154,7 +160,7 @@ export default async (
     try {
       if (!running || !should_trade()) return;
 
-      inTrade = true;
+      trader.inTrade = true;
       //wait on processing orders
       while (
         buy_orders.some(s => s.processing) ||
@@ -165,16 +171,14 @@ export default async (
       }
 
       const active_buy_orders = activeOrders(buy_orders);
-
+      trader.pause_callbacks = true;
       if (active_buy_orders.length > 0) {
         if (average_costs.length > 0 && locked) {
           //do nothing for now
         } else {
           logger.info("replacing buy orders..");
 
-          buy_orders.push(
-            ...(await Promise.all(active_buy_orders.map(cancelReplace)))
-          );
+          await cancelReplace();
         }
       } else {
         logger.info("placing new buy orders..");
@@ -184,8 +188,8 @@ export default async (
     } catch (error) {
       logger.error(`ERROR in trade: ${JSON.stringify(error)}..`);
     }
-
-    inTrade = false;
+    trader.pause_callbacks = false;
+    trader.inTrade = false;
   }
 
   async function main_loop() {
@@ -197,18 +201,19 @@ export default async (
     }
   }
 
-  function reset() {
-    exit();
+  async function reset() {
+    await exit();
     handled_timeout.clear();
   }
 
   emitter.addListener(`RESET_${symbol.toLocaleLowerCase()}`, reset);
 
-  const exit = () => buy_orders.forEach(cancel);
+  const exit = async () => await Promise.all(buy_orders.map(cancel));
+
   emitter.addListener("EXIT", exit);
 
-  function stop() {
-    buy_orders.forEach(cancel);
+  async function stop() {
+    await exit();
 
     emitter.removeListener(
       `PRICE_UPDATED_${symbol.toLocaleLowerCase()}`,
@@ -234,11 +239,24 @@ export default async (
   }
 
   async function panic() {
-    sell_orders.push(
-      ...(await Promise.all(
-        activeOrders(sell_orders).map(o => o.cancelReplace(last_price - 0.05))
-      ))
+    const orders = await Promise.all(sell_orders.map(cancel));
+    const new_orders = await Promise.all(
+      orders.map(
+        async o =>
+          await sell_order_handle(
+            {
+              bid_price: last_price - 0.05,
+              quantity:
+                o.quantity -
+                o.order.executions.reduce((p, n) => p + Number(n.quantity), 0),
+              instrument: { url: instrument, symbol },
+              type: "limit"
+            },
+            o.callback
+          )
+      )
     );
+    sell_orders.push(...new_orders);
     logger.info("panicked");
   }
 

@@ -65,12 +65,17 @@ export default (
         quantity: Number(order.cumulative_quantity)
       });
 
-      const cost =
-        average_costs.reduce((p, n) => p + n.price * n.quantity, 0) /
-        average_costs.reduce((p, n) => p + n.quantity, 0);
+      const qty = average_costs.reduce((p, n) => p + n.quantity, 0);
+
+      const total_average_cost = average_costs.reduce(
+        (p, n) => p + n.price * n.quantity,
+        0
+      );
+
+      const average_cost = total_average_cost / qty;
 
       const bid_price = roundIt(
-        cost +
+        average_cost +
           over_bids[
             active_sell_orders.length >= over_bids.length
               ? over_bids.length - 1
@@ -78,24 +83,20 @@ export default (
           ]
       );
 
-      let quantity = Number(order.cumulative_quantity);
-
       const options = {
         type: "limit",
-        quantity,
+        quantity:
+          qty -
+          sell_orders.reduce(
+            (p, n) => p + Number(n.order.cumulative_quantity),
+            0
+          ),
         instrument: { url: order.instrument, symbol },
         bid_price
       };
 
+      await Promise.all(active_sell_orders.map(o => o.cancel()));
       sell_orders.push(await sell_order_handle(options, sell_status_changed));
-
-      if (active_sell_orders.length > 0) {
-        sell_orders.push(
-          ...(await Promise.all(
-            active_sell_orders.map(o => o.cancelReplace(bid_price))
-          ))
-        );
-      }
     } catch (error) {
       logger.error(`error handling buy order ${JSON.stringify(error)}`);
     } finally {
